@@ -1,5 +1,5 @@
 __author__ = 'vinay'
-from .settings import CFCMS_TEMPLATE_DIRS
+from .settings import CMS_TEMPLATE_DIRS
 
 
 class CmsException(Exception):
@@ -13,7 +13,7 @@ class CmsInvalidTemplateException(CmsException):
         self.message = u"Unable to find the template {}.\n" \
                        u"Tried in the following paths\n" \
                        u"{}".format(template_name,
-                                    u'\n'.join(CFCMS_TEMPLATE_DIRS))
+                                    u'\n'.join(CMS_TEMPLATE_DIRS))
 
 
 class CmsInvalidContent(CmsException):

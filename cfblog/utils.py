@@ -1,16 +1,17 @@
 __author__ = 'vinay'
 import datetime
 from functools import wraps
-import json
 import os
 import re
 
-from mistune import markdown
 from bs4 import BeautifulSoup, Tag
+from mistune import markdown
+
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpRequest, Http404
+from django.core.urlresolvers import resolve
+from django.http.request import HttpRequest
 from django.template import TemplateSyntaxError
 from django.utils.decorators import available_attrs
 from django.utils.text import slugify
@@ -157,26 +158,6 @@ def is_namespace_parent(tag):
     return False
 
 
-def publish_cms_content(cms_page, request=dum_request):
-    """
-    :param cms_page: Object should be similar to CmsBlogPost
-    :type request: HttpRequest
-    :rtype : HttpResponse or Http404
-    """
-    try:
-        cms_page.public_data = get_public_data(cms_page, request)
-    except CmsInvalidTemplateException as e:
-        raise Http404(e)
-    except CmsInvalidContent as e:
-        return HttpResponse(json.dumps({'success': False,
-                                        'message': e}),
-                            content_type='application/json')
-    else:
-        cms_page.save()
-        return HttpResponse(json.dumps({'success': True}),
-                            content_type='application/json')
-
-
 def get_public_data(cms_page, request=dum_request):
     """
     Generates the public data for the given cms page. Raises exceptions if unable to process the data.
@@ -184,12 +165,17 @@ def get_public_data(cms_page, request=dum_request):
     :type request: HttpRequest
     :rtype : str
     """
-    try:
-        cms_template = validate_and_get_template(cms_page.template.name)
-    except ValidationError:
-        raise CmsInvalidTemplateException(cms_page.template.name)
-
-    html = cms_template.render(request=request)
+    if cms_page.template:
+        try:
+            cms_template = validate_and_get_template(cms_page.template.name)
+        except ValidationError:
+            raise CmsInvalidTemplateException(cms_page.template.name)
+        else:
+            html = cms_template.render(request=request)
+    else:
+        resolver_match = resolve(cms_page.url)
+        func_response = resolver_match.func(request, *resolver_match.args, **resolver_match.kwargs)
+        html = func_response.content
     try:
         return parse_cms_template(html, cms_page.auth_data,
                                   publish=True)

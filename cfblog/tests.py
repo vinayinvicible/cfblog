@@ -135,7 +135,7 @@ class CMSTests(TestCase):
         """
         out = parse_cms_template(
             html,
-            {'h1': '<div data-cms-include="namespace:snippet"></div>'}
+            {'h1': '<div data-cms-include="namespace:cms_templates/snippet"></div>'}
         )
         self.assertHTMLEqual(out, """
             <html>
@@ -143,7 +143,7 @@ class CMSTests(TestCase):
                 </head>
                 <body>
                     <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
-                    <div data-cms-include="snippet" data-cms-namespace="namespace">
+                    <div data-cms-include="cms_templates/snippet" data-cms-namespace="namespace">
                     hehehe
                     <div data-cms-content="md:text">Hi</div>
                     </div>
@@ -154,7 +154,7 @@ class CMSTests(TestCase):
 
         out = parse_cms_template(
             html,
-            {'h1': '<div data-cms-include="namespace:snippet"></div>',
+            {'h1': '<div data-cms-include="namespace:cms_templates/snippet"></div>',
              NAMESPACE_DELIMITER.join(('h1', 'namespace', 'text')): '##Heading##'}
         )
         self.assertHTMLEqual(out, """
@@ -163,7 +163,7 @@ class CMSTests(TestCase):
                 </head>
                 <body>
                     <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
-                    <div data-cms-include="snippet" data-cms-namespace="namespace">
+                    <div data-cms-include="cms_templates/snippet" data-cms-namespace="namespace">
                     hehehe
                     <div data-cms-content="md:text"><h2>Heading</h2></div>
                     </div>
@@ -174,7 +174,7 @@ class CMSTests(TestCase):
 
         out = parse_cms_template(
             html,
-            {'h1': '<div data-cms-include="namespace:snippet_2"></div>',
+            {'h1': '<div data-cms-include="namespace:cms_templates/snippet_2"></div>',
              NAMESPACE_DELIMITER.join(('h1', 'namespace', 'text2')): '##Heading##'}
         )
         self.assertHTMLEqual(out, """
@@ -183,7 +183,7 @@ class CMSTests(TestCase):
                 </head>
                 <body>
                     <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
-                    <div data-cms-include="snippet_2" data-cms-namespace="namespace">
+                    <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
                     hehehe2
                     <div data-cms-content="md:text2"><h2>Heading</h2></div>
                     </div>

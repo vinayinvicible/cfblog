@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('auth_data', jsonfield.fields.JSONField(default={}, verbose_name='author data', blank=True)),
-                ('public_data', models.TextField(default='', verbose_name='public data', blank=True)),
+                ('public_data', jsonfield.fields.JSONField(default={}, verbose_name='public data', blank=True)),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('modified_on', models.DateTimeField(auto_now=True, verbose_name='modified on')),
                 ('status', models.IntegerField(default=1, verbose_name='status', choices=[(1, 'Draft'), (2, 'Public')])),
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('auth_data', jsonfield.fields.JSONField(default={}, verbose_name='author data', blank=True)),
-                ('public_data', models.TextField(default='', verbose_name='public data', blank=True)),
+                ('public_data', jsonfield.fields.JSONField(default={}, verbose_name='public data', blank=True)),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('modified_on', models.DateTimeField(auto_now=True, verbose_name='modified on')),
                 ('status', models.IntegerField(default=1, verbose_name='status', choices=[(1, 'Draft'), (2, 'Public')])),
@@ -92,11 +92,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cmspage',
             name='template',
-            field=models.ForeignKey(verbose_name='template', to='cfblog.CmsPageTemplate'),
+            field=models.ForeignKey(verbose_name='template', blank=True, to='cfblog.CmsPageTemplate', null=True),
         ),
         migrations.AddField(
             model_name='cmsblogpost',
             name='template',
-            field=models.ForeignKey(verbose_name='template', to='cfblog.CmsPageTemplate'),
+            field=models.ForeignKey(verbose_name='template', blank=True, to='cfblog.CmsPageTemplate', null=True),
         ),
     ]

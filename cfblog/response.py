@@ -4,7 +4,7 @@ from django.http.response import Http404, HttpResponse
 from django.template import TemplateSyntaxError
 
 from .models import CmsPage
-from .settings import CFCMS_TEMPLATE_DIRS, CMS_AUTH_TEST_FUNC
+from .settings import CMS_TEMPLATE_DIRS, CMS_AUTH_TEST_FUNC
 from .utils import parse_cms_template
 from .validators import validate_and_get_template
 
@@ -27,7 +27,7 @@ def cms_response(template_name,
             u"Unable to find the template {}.\n"
             u"Tried in the following paths\n"
             u"{}".format(template_name,
-                         '\n'.join(CFCMS_TEMPLATE_DIRS)))
+                         '\n'.join(CMS_TEMPLATE_DIRS)))
     else:
         content = cms_template.render(context=template_context,
                                       request=request)

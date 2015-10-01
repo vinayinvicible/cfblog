@@ -6,7 +6,8 @@ import datetime
 
 from django.conf import settings
 from django.db import models
-from django.db.models import permalink
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
 
 from jsonfield import JSONField
@@ -31,9 +32,9 @@ STATUS_CHOICES = (
 
 
 class BaseCmsPage(models.Model):
-    template = models.ForeignKey(CmsPageTemplate, verbose_name=_('template'))
+    template = models.ForeignKey(CmsPageTemplate, verbose_name=_('template'), null=True, blank=True)
     auth_data = JSONField(verbose_name=_('author data'), default={}, blank=True)
-    public_data = models.TextField(verbose_name=_('public data'), default='', blank=True)
+    public_data = JSONField(verbose_name=_('public data'), default={}, blank=True)
     created_on = models.DateTimeField(_('created on'), auto_now_add=True)
     modified_on = models.DateTimeField(_('modified on'), auto_now=True)
     status = models.IntegerField(_('status'), choices=STATUS_CHOICES, default=1)
@@ -45,6 +46,11 @@ class BaseCmsPage(models.Model):
     @property
     def is_public(self):
         return self.status == 2
+
+    def publish_cms_content(self):
+        self.public_data = self.auth_data
+        self.status = 2
+        self.save()
 
 
 class CmsPage(BaseCmsPage):
@@ -58,6 +64,20 @@ class CmsPage(BaseCmsPage):
     @stale_cache('cms_page_{id}')
     def save(self, *args, **kwargs):
         super(CmsPage, self).save(*args, **kwargs)
+
+    def clean(self):
+        from .views import cms_page_index
+        resolver_math = resolve(self.url)
+        if resolver_math.func is cms_page_index and not self.template:
+            raise ValidationError(_(
+                'Template cannot be empty for new urls'
+            ))
+
+        if resolver_math.func is not cms_page_index and self.template:
+            raise ValidationError(_(
+                'Template is not required for existing urls'
+            ))
+        super(CmsPage, self).clean()
 
 
 class CmsBlogCategory(models.Model):
