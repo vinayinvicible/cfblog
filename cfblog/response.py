@@ -32,23 +32,24 @@ def cms_response(template_name,
         content = cms_template.render(context=template_context,
                                       request=request)
 
-        try:
-            cms_page = CmsPage.objects.get(url=request.path)
-        except CmsPage.DoesNotExist:
-            pass
-        else:
-            if CMS_AUTH_TEST_FUNC(request.user):
-                cms_context = cms_page.auth_data
-            elif cms_page.is_live:
-                return HttpResponse(cms_page.html, content_type, status)
+        if request and request.path:
+            try:
+                cms_page = CmsPage.objects.get(url=request.path)
+            except CmsPage.DoesNotExist:
+                pass
+            else:
+                if CMS_AUTH_TEST_FUNC(request.user):
+                    cms_context = cms_page.auth_data
+                elif cms_page.is_live:
+                    return HttpResponse(cms_page.html, content_type, status)
 
         if cms_context is not None:
             if isinstance(cms_context, dict):
-                # try:
-                content = parse_cms_template(content, cms_context,
-                                             publish=False)
-                # except (ValidationError, TemplateSyntaxError):
-                #     raise Http404()
+                try:
+                    content = parse_cms_template(content, cms_context,
+                                                 publish=False)
+                except (ValidationError, TemplateSyntaxError):
+                    raise Http404()
             else:
                 raise ValueError('cms_context should be a dict')
 
