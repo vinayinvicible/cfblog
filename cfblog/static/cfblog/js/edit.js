@@ -263,14 +263,15 @@ $(document).ready(function () {
 
     function post_content(url, content) {
         var post_data = {
-            'data': JSON.stringify(content),
+            'auth_data': JSON.stringify(content),
             'csrfmiddlewaretoken': CSRF_TOKEN,
-            'cms_id': cms_id,
+            'cms_page_id': cms_page_id,
             'cms_page_class': cms_page_class
         };
         $.post(url, post_data, function (data) {
             if (data.success) {
                 alert('POST SUCCESSFUL');
+                location.reload(true);
             } else {
                 alert('POST FAILED');
             }
