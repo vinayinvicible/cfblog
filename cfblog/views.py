@@ -82,7 +82,7 @@ def save(request, save_type):
         else:
             if save_type == 'draft':
                 cms_page.save()
-                return JsonResponse({'success': True}),
+                return JsonResponse({'success': True})
             else:
                 cms_page.publish_cms_content()
                 return JsonResponse({'success': True})
