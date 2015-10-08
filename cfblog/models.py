@@ -65,9 +65,9 @@ class Content(models.Model):
     # TODO: Include S3ImageField
     # thumbnail = ImageWithThumbsField(upload_to=get_image_path, sizes=(('s', 500, 500), ('r', 450, 600), ('t', 200, 260)), null=True, blank=True)
     notes_todos = models.TextField(_('Notes and Todos'), blank=True)
-    auth_data = JSONField(verbose_name=_('author data'), default={},
+    auth_data = JSONField(verbose_name=_('author data'), default={}, blank=True,
                           help_text=_("Don't edit this unless you know what this means"))
-    public_data = JSONField(verbose_name=_('public data'), default={},
+    public_data = JSONField(verbose_name=_('public data'), default={}, blank=True,
                             help_text=_("Don't edit this unless you know what this means"))
     author = models.ForeignKey(settings.AUTH_USER_MODEL, limit_choices_to=cms_authors)
     created_on = models.DateTimeField(_('created on'), auto_now_add=True)
