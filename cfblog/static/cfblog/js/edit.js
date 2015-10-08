@@ -265,8 +265,7 @@ $(document).ready(function () {
         var post_data = {
             'auth_data': JSON.stringify(content),
             'csrfmiddlewaretoken': CSRF_TOKEN,
-            'cms_page_id': cms_page_id,
-            'cms_page_class': cms_page_class
+            'cms_page_id': cms_page_id
         };
         $.post(url, post_data, function (data) {
             if (data.success) {

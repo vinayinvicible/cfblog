@@ -10,14 +10,12 @@ from mistune import markdown
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import resolve
 from django.http.request import HttpRequest
 from django.template import TemplateSyntaxError
 from django.utils.decorators import available_attrs
 from django.utils.text import slugify
 
-from .exceptions import CmsInvalidTemplateException, CmsInvalidContent
-from .settings import CMS_AUTH_TEST_FUNC, PAGE_CACHE_TIMEOUT
+from .settings import PAGE_CACHE_TIMEOUT
 from .validators import validate_and_get_template, ValidationError
 
 dum_request = HttpRequest()
@@ -165,25 +163,19 @@ def get_public_data(cms_page, request=dum_request):
     :type request: HttpRequest
     :rtype : str
     """
-    if cms_page.template:
-        try:
-            cms_template = validate_and_get_template(cms_page.template.name)
-        except ValidationError:
-            raise CmsInvalidTemplateException(cms_page.template.name)
-        else:
-            html = cms_template.render(request=request)
-    else:
-        resolver_match = resolve(cms_page.url)
-        func_response = resolver_match.func(request, *resolver_match.args, **resolver_match.kwargs)
-        html = func_response.content
-    try:
-        return parse_cms_template(html, cms_page.auth_data,
-                                  publish=True)
-    except (ValidationError, TemplateSyntaxError):
-        raise CmsInvalidContent
+    # Removed all the exception handling
+    # as data is being validated at all levels before saving into the model
+    cms_template = validate_and_get_template(cms_page.template.name)
+    html = cms_template.render(request=request)
+    return parse_cms_template(html, cms_page.auth_data,
+                              publish=True)
 
 
-def user_passes_test(test_func=CMS_AUTH_TEST_FUNC):
+def can_edit_content(user):
+    return user.has_perm('cfblog.change_content')
+
+
+def user_passes_test(test_func=can_edit_content):
     """
     Similar to user_passes_test in django.contrib.auth.decorators.
     Instead of redirecting it just raises PermissionDenied.
@@ -254,6 +246,7 @@ def stale_cache(cache_key):
             try:
                 key = cache_key.format(self.__dict__)
             except KeyError:
+                # This happens when the model is being saved for the first time.
                 pass
             else:
                 cache.delete(key)

@@ -13,9 +13,11 @@ def validate_and_get_template(name, using=None):
     if isinstance(name, (list, tuple)):
         return select_template(name, using=using)
     try:
-        return get_template('{}.html'.format(name), using=using)
-    except TemplateDoesNotExist:
-        raise ValidationError(_('Unable to find {} in the configured template folders'.format(name)))
+        if not name.endswith('.html'):
+            name = '{}.html'.format(name)
+        return get_template(name, using=using)
+    except TemplateDoesNotExist as e:
+        raise ValidationError(_("Unable to find the template '{}'".format(e)))
 
 
 url_path_re = re.compile(r'^/(?:[-a-zA-Z0-9_]+/{})*$'.format(r'?' if not settings.APPEND_SLASH else r''))

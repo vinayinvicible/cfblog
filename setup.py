@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='cfblog',
-    version='0.1b1',
+    version='0.1b2',
     packages=['cfblog', 'cfblog.migrations'],
     url='https://github.com/vinayinvicible/cfblog/',
     license='BSD',

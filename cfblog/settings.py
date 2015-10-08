@@ -18,8 +18,5 @@ def _get_setting(setting, default_value):
         'instead got {}'.format(setting, type(setting_value), type(default_value))
     )
 
-CMS_AUTH_TEST_FUNC = _get_setting('AUTH_TEST_FUNC', lambda user: user.is_staff or user.is_superuser)
-CMS_BLOG_URL_PREFIX = u'{}'.format(_get_setting('CMS_BLOG_URL_PREFIX', 'articles/').strip('/'))
-CMS_TEMPLATE_DIRS = _get_setting('CMS_TEMPLATE_DIRS', settings.TEMPLATE_DIRS)
 
 PAGE_CACHE_TIMEOUT = _get_setting('PAGE_CACHE_TIMEOUT', 60 * 60)
