@@ -5,7 +5,7 @@ from .models import Content
 from .views import cms_page_index
 
 
-class CmsPageMiddleware(object):
+class Middleware(object):
 
     def process_response(self, request, response):
         # ignore all ajax, static and media requests
