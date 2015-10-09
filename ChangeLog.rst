@@ -1,6 +1,12 @@
 cfblog ChangeLog
 ================
 
+0.1.6 - 9-Oct-2015
+------------------
+
+* not escaping html elements while parsing through markdown
+* added tests for this change
+
 0.1.5 - 9-Oct-2015
 ------------------
 
