@@ -191,3 +191,56 @@ class CMSTests(TestCase):
                 </body>
             </html>
         """)
+
+        out = parse_cms_template(
+            html,
+            {'h1': '##Heading##\n'
+                   '<div data-cms-include="namespace:cms_templates/snippet_2"></div>',
+             NAMESPACE_DELIMITER.join(('h1', 'namespace', 'text2')): '##Heading##'}
+        )
+        self.assertHTMLEqual(out, """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
+                    ##Heading##
+                    <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
+                    hehehe2
+                    <div data-cms-content="md:text2"><h2>Heading</h2></div>
+                    </div>
+                    </h1>
+                </body>
+            </html>
+        """)
+
+        html = """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="md:h1" data-cms-attr="id:id" id="orig">hello</h1>
+                </body>
+            </html>
+        """
+        out = parse_cms_template(
+            html,
+            {'h1': '##Heading##\n'
+                   '<div data-cms-include="namespace:cms_templates/snippet_2"></div>',
+             NAMESPACE_DELIMITER.join(('h1', 'namespace', 'text2')): '##Heading##'}
+        )
+        self.assertHTMLEqual(out, """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="md:h1" data-cms-attr="id:id" id="orig">
+                    <h2>Heading</h2>
+                    <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
+                    hehehe2
+                    <div data-cms-content="md:text2"><h2>Heading</h2></div>
+                    </div>
+                    </h1>
+                </body>
+            </html>
+        """)

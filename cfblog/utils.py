@@ -127,8 +127,9 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
         new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
         if any(_ in content for _ in CMS_ATTRIBUTES):
             content = parse_cms_template(content, dictionary, parent_namespace=key)
-        elif md:
-            content = markdown(content)
+
+        if md:
+            content = markdown(content, False)
 
         new_tag.insert(0, BeautifulSoup(content, features=HTML_PARSER))
         tag.replace_with(new_tag)
