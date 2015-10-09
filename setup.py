@@ -19,8 +19,12 @@ setup(
     license='BSD',
 
     install_requires=[
-        "fhurl>=0.1.7", "smarturls", "six", "Django>=1.3",
-        "dj-database-url",
+        "beautifulsoup4",
+        "Django>=1.8,<1.9",
+        "django-jsonfield==0.9.15",
+        "django-tagging==0.4",
+        "mistune==0.7.1",
+        "Pillow==2.9.0"
     ],
     packages=['cfblog', 'cfblog.migrations'],
 

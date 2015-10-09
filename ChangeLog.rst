@@ -1,10 +1,11 @@
 cfblog ChangeLog
-=================
+================
 
 0.1.3 - 9-Oct-2015
 ------------------
 
 * middleware is now called `cfblog.Middleware` [Backward Incompatible]
+* restricted static page category deletion from admin page instead of `AssertionError`
 
 0.1.2 - 8-Oct-2015
 ------------------
