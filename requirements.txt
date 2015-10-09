@@ -1,5 +1,5 @@
 beautifulsoup4
 Django>=1.7,<1.9
-django-jsonfield
+jsonfield
 django-tagging
 mistune
