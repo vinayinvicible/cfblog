@@ -11,7 +11,7 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.1.3",
+    version="0.1.4",
     author='Vinay Karanam',
     author_email="vinayinvicible@gmail.com",
 
@@ -19,8 +19,11 @@ setup(
     license='BSD',
 
     install_requires=[
-        "fhurl>=0.1.7", "smarturls", "six", "Django>=1.3",
-        "dj-database-url",
+        "beautifulsoup4",
+        "Django>=1.7,<1.9",
+        "django-jsonfield",
+        "django-tagging",
+        "mistune",
     ],
     packages=['cfblog', 'cfblog.migrations'],
 

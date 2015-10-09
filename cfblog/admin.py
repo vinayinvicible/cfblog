@@ -5,7 +5,11 @@ from .models import Content, Category
 
 
 class CmsPageCategoryAdmin(admin.ModelAdmin):
-    pass
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and obj.id == 1:
+            return False
+        return super(CmsPageCategoryAdmin, self).has_delete_permission(request, obj)
+
 admin.site.register(Category, CmsPageCategoryAdmin)
 
 
