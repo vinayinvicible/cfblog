@@ -1,6 +1,11 @@
 cfblog ChangeLog
 ================
 
+0.1.5 - 9-Oct-2015
+------------------
+
+* changed requirement from `django-jsonfield` to `jsonfield`
+
 0.1.4 - 9-Oct-2015
 ------------------
 

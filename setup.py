@@ -11,7 +11,7 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.1.4",
+    version="0.1.5",
     author='Vinay Karanam',
     author_email="vinayinvicible@gmail.com",
 
@@ -21,7 +21,7 @@ setup(
     install_requires=[
         "beautifulsoup4",
         "Django>=1.7,<1.9",
-        "django-jsonfield",
+        "jsonfield",
         "django-tagging",
         "mistune",
     ],
