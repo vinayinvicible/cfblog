@@ -1,6 +1,5 @@
-beautifulsoup4==4.4.0
-Django==1.8.3
-django-jsonfield==0.9.15
-django-tagging==0.4
-mistune==0.7.1
-Pillow==2.9.0
+beautifulsoup4
+Django>=1.7,<1.9
+django-jsonfield
+django-tagging
+mistune
