@@ -118,6 +118,18 @@ var default_opts = {
 };
 
 $(document).ready(function () {
+    var local_storage_name = window.local_storage_name;
+    var local_storage = window.localStorage;
+    var local_data = {};
+    if (local_storage && local_storage_name in local_storage) {
+        var draft_data = JSON.parse(local_storage[local_storage_name]);
+        for (var key in draft_data) {
+            if (draft_data.hasOwnProperty(key)) {
+                local_data[key] = draft_data[key]['content']
+            }
+        }
+    }
+
     editables.each(function (index, elem) {
         var namespace = getNamespace(elem);
         if (elem.hasAttribute('data-cms-content')) {
@@ -140,7 +152,7 @@ $(document).ready(function () {
             }).addClass('editable').appendTo(a);
             $('<textarea/>', {
                 id: content_key+'_content',
-                text: cms_data[content_key] || elem.innerHTML,
+                text: local_data[content_key+'_editor'] || cms_data[content_key] || elem.innerHTML,
                 hidden: 'hidden'
             }).appendTo(a);
             a.appendTo($('.cms_toolbar_list'));
