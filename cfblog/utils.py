@@ -166,9 +166,9 @@ def get_public_data(cms_page, request=dum_request):
     """
     # Removed all the exception handling
     # as data is being validated at all levels before saving into the model
-    cms_template = validate_and_get_template(cms_page.template.name)
+    cms_template = validate_and_get_template(cms_page.template)
     html = cms_template.render(request=request)
-    return parse_cms_template(html, cms_page.auth_data,
+    return parse_cms_template(html, cms_page.public_data,
                               publish=True)
 
 
@@ -215,7 +215,7 @@ def cacheable(cache_key, timeout=PAGE_CACHE_TIMEOUT):
     def decorator(func):
         @wraps(func, assigned=available_attrs(func))
         def _wrapped_view(self):
-            key = cache_key.format(self.__dict__)
+            key = cache_key.format(**self.__dict__)
             if key in cache:
                 return cache[key]
             res = func(self)
@@ -245,7 +245,7 @@ def stale_cache(cache_key):
         @wraps(func, assigned=available_attrs(func))
         def _wrapped_view(self, *args, **kw):
             try:
-                key = cache_key.format(self.__dict__)
+                key = cache_key.format(**self.__dict__)
             except KeyError:
                 # This happens when the model is being saved for the first time.
                 pass
