@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.1.8 - 15-Oct-2015
+-------------------
+
+* bug fix for `__getitem__` on CacheObject
 
 0.1.7 - 14-Oct-2015
 -------------------
