@@ -19,7 +19,6 @@ from .validators import validate_url_path, validate_and_get_template
 
 class Category(models.Model):
     """Category model."""
-    # TODO: Create a migration to add Static Page as first entry
     title = models.CharField(_('title'), max_length=100, unique=True, db_index=True)
     description = models.TextField(_('description'))
 
@@ -90,6 +89,7 @@ class Content(models.Model):
     def __unicode__(self):
         return self.title
 
+    @property
     @cacheable('cfblog_content_{id}')
     def html(self):
         return get_public_data(self)

@@ -1,6 +1,14 @@
 cfblog ChangeLog
 ================
 
+0.1.7 - 14-Oct-2015
+-------------------
+
+* added view on site option at admin list_display.
+* added MANIFEST template to include static and templates in the package.
+* pre loading localStorage value in the editor if exists.
+* bug fixes while publishing content.
+
 0.1.6 - 9-Oct-2015
 ------------------
 
