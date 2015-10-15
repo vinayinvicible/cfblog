@@ -217,7 +217,7 @@ def cacheable(cache_key, timeout=PAGE_CACHE_TIMEOUT):
         def _wrapped_view(self):
             key = cache_key.format(**self.__dict__)
             if key in cache:
-                return cache[key]
+                return cache.get(key)
             res = func(self)
             cache.set(key, res, timeout)
             return res
