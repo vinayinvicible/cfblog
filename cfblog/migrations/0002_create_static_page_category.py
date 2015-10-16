@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import warnings
 
+from django.core.management.color import no_style
 from django.db import migrations
 
 
@@ -14,11 +15,22 @@ def create_static_page_category(apps, schema_editor):
             "Entry for static pages already exists."
         )
     else:
+        reset_sequence = True
+        if Category.objects.count():
+            reset_sequence = False
+
         Category.objects.create(
             id=1,
             title='Static Page',
             description='All the standalone pages should be under this category'
         )
+
+        if reset_sequence:
+            connection = schema_editor.connection
+            sql_statements = connection.ops.sequence_reset_sql(no_style(), [Category])
+            operation = migrations.RunSQL(sql=sql_statements)
+            operation.database_forwards('cfblog', schema_editor, None, None)
+
     print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 
 
