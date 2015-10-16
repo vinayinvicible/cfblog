@@ -12,7 +12,16 @@ from .response import render
 from .utils import NAMESPACE_DELIMITER, user_passes_test, can_edit_content
 
 
-def cms_page_index(request, cms_page):
+def cms_page_index(request, cms_page=None, url_path=None):
+    if not (url_path or cms_page):
+        raise ValueError(
+            'Either url_path or cms_page should be passed'
+        )
+
+    if not cms_page:
+        url_path = u'/{}/'.format(url_path.strip('/'))
+        cms_page = get_object_or_404(Content, url=url_path)
+
     if can_edit_content(request.user):
         return render(
             template_name=cms_page.template,
@@ -54,7 +63,7 @@ def save(request, save_type):
             return JsonResponse({'success': False,
                                  'message': 'Unable to parse the new content.\n'
                                  'Please resolve the issues and try again',
-                                 'exception': e,
+                                 'exception': unicode(e),
                                  'traceback': traceback.format_exc()})
         else:
             if save_type == 'draft':
