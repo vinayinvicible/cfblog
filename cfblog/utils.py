@@ -58,12 +58,18 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
         else:
             try:
                 local_namespace = tag.attrs['data-cms-namespace']
-                default_template_name = include_value
-            except:
+            except KeyError:
                 raise TemplateSyntaxError(
                     'value of data-cms-include should be of the form {namespace}:{template path}'
                     'if namespace is not specified then another attribute data-cms-namespace should be defined'
                 )
+            else:
+                if not namespace_re.match(local_namespace):
+                    raise TemplateSyntaxError(
+                        '"{}" is not a valid value for data-cms-namespace'.format(local_namespace)
+                    )
+                else:
+                    default_template_name = include_value
 
         namespace += NAMESPACE_DELIMITER + local_namespace if namespace else local_namespace
 
