@@ -50,6 +50,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_*
 
 # Sphinx documentation
 docs/_build/
@@ -59,3 +60,4 @@ target/
 
 # Created by .ignore support plugin (hsz.mobi)
 .idea
+ignore*
