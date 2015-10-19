@@ -9,16 +9,17 @@ class Middleware(object):
 
     def process_response(self, request, response):
         # ignore all ajax, static and media requests
+        path = request.path_info
         if request.is_ajax() or \
-                request.path.startswith(settings.STATIC_URL or '///') or \
-                request.path.startswith(settings.MEDIA_URL or '///'):
+                path.startswith(settings.STATIC_URL or '///') or \
+                path.startswith(settings.MEDIA_URL or '///'):
             return response
 
         if response.status_code != 404:
             return response
 
         try:
-            cms_page = Content.objects.get(url=request.path)
+            cms_page = Content.objects.get(url=path)
         except Content.DoesNotExist:
             return response
         else:

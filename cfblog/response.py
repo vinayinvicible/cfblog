@@ -24,7 +24,7 @@ def render(template_name,
 
     if request is not None:
         try:
-            cms_page = Content.objects.get(url=request.path)
+            cms_page = Content.objects.get(url=request.path_info)
         except Content.DoesNotExist:
             pass
         else:

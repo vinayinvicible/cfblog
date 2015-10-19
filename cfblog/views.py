@@ -2,6 +2,7 @@ __author__ = 'vinay'
 import json
 import traceback
 
+from django.conf import settings
 from django.http.response import HttpResponseForbidden, HttpResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_protect
@@ -13,13 +14,15 @@ from .utils import NAMESPACE_DELIMITER, user_passes_test, can_edit_content
 
 
 def cms_page_index(request, cms_page=None, url_path=None):
-    if not (url_path or cms_page):
-        raise ValueError(
-            'Either url_path or cms_page should be passed'
-        )
-
     if not cms_page:
-        url_path = u'/{}/'.format(url_path.strip('/'))
+        url_path = url_path or request.path_info
+
+        if not url_path.startswith('/'):
+            url_path = u'/{}'.format(url_path)
+
+        if settings.APPEND_SLASH and not url_path.endswith('/'):
+            url_path = u'{}/'.format(url_path)
+
         cms_page = get_object_or_404(Content, url=url_path)
 
     if can_edit_content(request.user):

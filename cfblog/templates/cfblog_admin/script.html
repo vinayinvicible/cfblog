@@ -92,7 +92,7 @@
     var CSRF_TOKEN = '{{ csrf_token }}';
     var cms_data = {{ cms_data|safe }};
     var namespace_delimiter = {{ namespace_delimiter|safe }};
-    var local_storage_name = '{{ request.path|slugify }}';
+    var local_storage_name = '{{ request.path_info|slugify }}';
     var cms_page_id = '{{ id }}';
     var static_url = '{{ STATIC_URL }}' + 'cfblog/';
 </script>
