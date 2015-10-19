@@ -18,6 +18,11 @@ class Middleware(object):
         if response.status_code != 404:
             return response
 
+        # we return the original response
+        # if the 404 response is given by cms_page_index
+        if request.resolver_match and request.resolver_match.func is cms_page_index:
+            return response
+
         try:
             cms_page = Content.objects.get(url=path)
         except Content.DoesNotExist:
