@@ -1,7 +1,7 @@
 __author__ = 'vinay'
 from django.conf import settings
+from django.http.response import Http404
 
-from .models import Content
 from .views import cms_page_index
 
 
@@ -24,8 +24,10 @@ class Middleware(object):
             return response
 
         try:
-            cms_page = Content.objects.get(url=path)
-        except Content.DoesNotExist:
+            return cms_page_index(request, url_path=path)
+        except Http404:
             return response
-        else:
-            return cms_page_index(request, cms_page=cms_page)
+        except Exception:
+            if settings.DEBUG:
+                raise
+            return response
