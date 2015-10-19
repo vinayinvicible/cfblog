@@ -26,6 +26,7 @@ setup(
         "mistune",
     ],
     packages=['cfblog', 'cfblog.migrations'],
+    include_package_data=True,
 
     zip_safe=True,
 )
