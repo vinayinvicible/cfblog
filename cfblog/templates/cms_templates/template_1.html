@@ -2,12 +2,11 @@
 
 {% block head %}
     <title data-cms-content="title">Page Title</title>
-    <meta data-cms-attr="content:decrp" name="description" content="default content">
+    <meta data-cms-attr="content:decrp" name="description" content="default content" />
 {% endblock %}
 
 {% block content %}
     <span data-cms-attr="id:body_attr" id="random">default body</span>
-    <div data-cms-content="body" class="random">
-        <div data-cms-include="namespace:cms_templates/snippet"></div>
+    <div data-cms-content="md:body" class="random">
     </div>
 {% endblock %}

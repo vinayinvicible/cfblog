@@ -184,7 +184,6 @@ class CMSTests(TestCase):
                 <body>
                     <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
                     <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
-                    hehehe2
                     <div data-cms-content="md:text2"><h2>Heading</h2></div>
                     </div>
                     </h1>
@@ -206,7 +205,6 @@ class CMSTests(TestCase):
                     <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
                     ##Heading##
                     <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
-                    hehehe2
                     <div data-cms-content="md:text2"><h2>Heading</h2></div>
                     </div>
                     </h1>
@@ -237,7 +235,6 @@ class CMSTests(TestCase):
                     <h1 data-cms-content="md:h1" data-cms-attr="id:id" id="orig">
                     <h2>Heading</h2>
                     <div data-cms-include="cms_templates/snippet_2" data-cms-namespace="namespace">
-                    hehehe2
                     <div data-cms-content="md:text2"><h2>Heading</h2></div>
                     </div>
                     </h1>

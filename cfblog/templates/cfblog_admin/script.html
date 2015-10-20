@@ -16,7 +16,7 @@
     background: #454545;
 }
 .cms_toolbar {
-    background-color: rgba(34, 34, 34, 0.9);
+    background-color: rgba(42, 57, 68, 0.95);
     color: whitesmoke;
     position: fixed;
     width: 20%;
@@ -36,7 +36,11 @@
 }
 .cms_toolbar_list li {
     padding: 4%;
-    border-bottom: 1px solid #fff;
+    font-size: 14px;
+}
+.cms_toolbar_list li:hover {
+    background-color: rgba(42, 57, 68, 1);
+    opacity: 1;
 }
 .cms_editor {
     background-color: rgb(255, 255, 255);
@@ -81,10 +85,11 @@
     -o-transform: rotate(-90deg);
     transform-origin: right bottom;
 }
-.cms_highlight {
+.cms_highlight, .cms_toolbar_list li.cms_highlight:hover {
     background-color: whitesmoke;
-    color: black;
+    color: #314451;
 }
+
 </style>
 <script type="text/javascript">
     var draft_url = '{% url 'save_cms_content' 'draft' %}';
@@ -92,7 +97,7 @@
     var CSRF_TOKEN = '{{ csrf_token }}';
     var cms_data = {{ cms_data|safe }};
     var namespace_delimiter = {{ namespace_delimiter|safe }};
-    var local_storage_name = '{{ request.path_info|slugify }}';
+    var local_storage_name = '{{ request.path|slugify }}';
     var cms_page_id = '{{ id }}';
     var static_url = '{{ STATIC_URL }}' + 'cfblog/';
 </script>
