@@ -65,7 +65,7 @@ def save(request, save_type):
         except Exception as e:
             return JsonResponse({'success': False,
                                  'message': 'Unable to parse the new content.\n'
-                                 'Please resolve the issues and try again',
+                                 'Please check the console for issues.',
                                  'exception': unicode(e),
                                  'traceback': traceback.format_exc()})
         else:

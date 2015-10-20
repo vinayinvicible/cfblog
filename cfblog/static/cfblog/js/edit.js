@@ -281,10 +281,10 @@ $(document).ready(function () {
         };
         $.post(url, post_data, function (data) {
             if (data.success) {
-                alert('POST SUCCESSFUL');
                 location.reload(true);
             } else {
-                alert('POST FAILED');
+                console.log('Exception is: ' + data.exception);
+                alert(data.message);
             }
         }, 'json');
     }
