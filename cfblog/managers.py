@@ -4,6 +4,12 @@ from django.utils import timezone
 
 
 class ContentMixin(object):
+    def by_author(self, user):
+        return self.filter(author=user)
+
+    def by_category(self, category):
+        return self.filter(category=category)
+
     def published(self):
         return self.filter(status__gte=2, publish__lte=timezone.now())
 
