@@ -2,6 +2,7 @@ __author__ = 'vinay'
 import json
 import traceback
 
+from django.conf import settings
 from django.http.response import HttpResponseForbidden, HttpResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_protect
@@ -12,7 +13,18 @@ from .response import render
 from .utils import NAMESPACE_DELIMITER, user_passes_test, can_edit_content
 
 
-def cms_page_index(request, cms_page):
+def cms_page_index(request, cms_page=None, url_path=None):
+    if not cms_page:
+        url_path = url_path or request.path_info
+
+        if not url_path.startswith('/'):
+            url_path = u'/{}'.format(url_path)
+
+        if settings.APPEND_SLASH and not url_path.endswith('/'):
+            url_path = u'{}/'.format(url_path)
+
+        cms_page = get_object_or_404(Content, url=url_path)
+
     if can_edit_content(request.user):
         return render(
             template_name=cms_page.template,
@@ -53,8 +65,8 @@ def save(request, save_type):
         except Exception as e:
             return JsonResponse({'success': False,
                                  'message': 'Unable to parse the new content.\n'
-                                 'Please resolve the issues and try again',
-                                 'exception': e,
+                                 'Please check the console for issues.',
+                                 'exception': unicode(e),
                                  'traceback': traceback.format_exc()})
         else:
             if save_type == 'draft':

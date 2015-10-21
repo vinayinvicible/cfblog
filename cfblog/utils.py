@@ -1,7 +1,5 @@
 __author__ = 'vinay'
-import datetime
 from functools import wraps
-import os
 import re
 
 from bs4 import BeautifulSoup, Tag
@@ -13,7 +11,6 @@ from django.core.exceptions import PermissionDenied
 from django.http.request import HttpRequest
 from django.template import TemplateSyntaxError
 from django.utils.decorators import available_attrs
-from django.utils.text import slugify
 
 from .settings import PAGE_CACHE_TIMEOUT
 from .validators import validate_and_get_template, ValidationError
@@ -58,12 +55,18 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
         else:
             try:
                 local_namespace = tag.attrs['data-cms-namespace']
-                default_template_name = include_value
-            except:
+            except KeyError:
                 raise TemplateSyntaxError(
                     'value of data-cms-include should be of the form {namespace}:{template path}'
                     'if namespace is not specified then another attribute data-cms-namespace should be defined'
                 )
+            else:
+                if not namespace_re.match(local_namespace):
+                    raise TemplateSyntaxError(
+                        '"{}" is not a valid value for data-cms-namespace'.format(local_namespace)
+                    )
+                else:
+                    default_template_name = include_value
 
         namespace += NAMESPACE_DELIMITER + local_namespace if namespace else local_namespace
 
@@ -255,23 +258,3 @@ def stale_cache(cache_key):
                 return func(self, *args, **kw)
         return _wrapped_view
     return decorator
-
-
-def get_image_path(instance, filename):
-    now = datetime.datetime.now()
-    monthdir = now.strftime("%Y-%m")
-    fname, ext = os.path.splitext(filename)
-    new_fname = slugify(fname)
-    newfilename = "%s-%s.%s" % (new_fname, now.strftime("%I%M%S"), ext)
-    path_to_save = "uploads/blog/%s/%s" % (monthdir, newfilename)
-    return path_to_save
-
-
-def get_file_path(self, instance, filename):
-    now = datetime.datetime.now()
-    monthdir = now.strftime("%Y-%m")
-    fname, ext = os.path.splitext(filename)
-    new_fname = slugify(fname)
-    newfilename = "%s-%s.%s" % (new_fname, now.strftime("%I%M%S"), ext)
-    path_to_save = "uploads/pdfs/%s/%s" % (monthdir, newfilename)
-    return path_to_save

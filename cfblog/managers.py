@@ -1,12 +1,29 @@
-import datetime
-
 from django.db import models
+from django.db.models.query import QuerySet
+from django.utils import timezone
 
 
-class ContentManager(models.Manager):
+class ContentMixin(object):
+    def by_author(self, user):
+        return self.filter(author=user)
+
+    def by_category(self, category):
+        return self.filter(category=category)
 
     def published(self):
-        return self.get_queryset().filter(status__gte=2, publish__lte=datetime.datetime.now())
+        return self.filter(status__gte=2, publish__lte=timezone.now())
 
     def static_pages(self):
-        return self.get_queryset().filter(category__id=1)
+        return self.filter(category__id=1)
+
+    def blog_posts(self):
+        return self.exclude(category__id=1)
+
+
+class ContentQuerySet(QuerySet, ContentMixin):
+    pass
+
+
+class ContentManager(models.Manager, ContentMixin):
+    def get_queryset(self):
+        return ContentQuerySet(self.model, using=self._db)

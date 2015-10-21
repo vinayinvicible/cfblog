@@ -24,7 +24,7 @@ def render(template_name,
 
     if request is not None:
         try:
-            cms_page = Content.objects.get(url=request.path)
+            cms_page = Content.objects.get(url=request.path_info)
         except Content.DoesNotExist:
             pass
         else:
@@ -38,8 +38,8 @@ def render(template_name,
             try:
                 content = parse_cms_template(content, cms_context,
                                              publish=False)
-            except (ValidationError, TemplateSyntaxError):
-                raise Http404()
+            except (ValidationError, TemplateSyntaxError) as e:
+                raise Http404(e)
         else:
             raise ValueError('cms_context should be an instance of dict')
 

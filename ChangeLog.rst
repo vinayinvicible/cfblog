@@ -1,5 +1,22 @@
 cfblog ChangeLog
 ================
+0.1.9 - 20-Oct-2015
+-------------------
+
+* fixed issues #12, #13 and #14
+
+* scripts and templates install in package folder.
+
+* replaced `request.path` usage with `request.path_info`.
+
+* added catchall url to fix the `csrf_token` being loaded as `NOTPROVIDED`.
+
+* `process_response` now catches all the exceptions similar to flatpage middleware and return the original response.
+
+* rewrote ContentManager to support chaining custom methods.
+
+* added proper post notification on post failure.
+
 0.1.8 - 15-Oct-2015
 -------------------
 
