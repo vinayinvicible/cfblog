@@ -5,18 +5,70 @@ import re
 from bs4 import BeautifulSoup, Tag
 from mistune import markdown
 
-from django.contrib.auth.models import AnonymousUser
-from django.core.cache import cache
+from django.conf import settings
+from django.core import urlresolvers
 from django.core.exceptions import PermissionDenied
-from django.http.request import HttpRequest
+from django.core.handlers.wsgi import WSGIRequest
+from django.test.client import Client
 from django.template import TemplateSyntaxError
 from django.utils.decorators import available_attrs
+from django.utils.functional import SimpleLazyObject
 
-from .settings import PAGE_CACHE_TIMEOUT
 from .validators import validate_and_get_template, ValidationError
 
-dum_request = HttpRequest()
-dum_request.user = AnonymousUser()
+
+# we are initialising Client as global variable
+# so that we need to load the middlewares only once
+_dum_client = Client()
+
+
+@SimpleLazyObject
+def dum_request(**request_settings):
+    """
+    Returns WSGIRequest object that is ready to be passed into a view
+    """
+    request_handler = _dum_client.handler
+    environ = _dum_client._base_environ(**request_settings)
+    if environ.get('PATH_INFO', '/') == '/':
+        # we are doing this because the catchall url does not catch '/'
+        environ.update({'PATH_INFO': '/asd/'})
+
+    request = WSGIRequest(environ)
+    if request_handler._request_middleware is None:
+        request_handler.load_middleware()
+
+    urlconf = settings.ROOT_URLCONF
+    urlresolvers.set_urlconf(urlconf)
+    resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
+    try:
+        response = None
+        # Apply request middleware
+        for middleware_method in request_handler._request_middleware:
+            response = middleware_method(request)
+            if response:
+                break
+
+        if response is None:
+            if hasattr(request, 'urlconf'):
+                # Reset url resolver with a custom urlconf.
+                urlconf = request.urlconf
+                urlresolvers.set_urlconf(urlconf)
+                resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
+
+            resolver_match = resolver.resolve(request.path_info)
+            callback, callback_args, callback_kwargs = resolver_match
+            request.resolver_match = resolver_match
+
+            # Apply view middleware
+            for middleware_method in request_handler._view_middleware:
+                response = middleware_method(request, callback, callback_args, callback_kwargs)
+                if response:
+                    break
+    except:
+        pass
+    finally:
+        return request
+
 
 CMS_ATTRIBUTES = ['data-cms-attr', 'data-cms-content', 'data-cms-include']
 
@@ -160,21 +212,6 @@ def is_namespace_parent(tag):
     return False
 
 
-def get_public_data(cms_page, request=dum_request):
-    """
-    Generates the public data for the given cms page. Raises exceptions if unable to process the data.
-    :type cms_page: BaseCmsPage
-    :type request: HttpRequest
-    :rtype : str
-    """
-    # Removed all the exception handling
-    # as data is being validated at all levels before saving into the model
-    cms_template = validate_and_get_template(cms_page.template)
-    html = cms_template.render(request=request)
-    return parse_cms_template(html, cms_page.public_data,
-                              publish=True)
-
-
 def can_edit_content(user):
     return user.has_perm('cfblog.change_content')
 
@@ -194,67 +231,5 @@ def user_passes_test(test_func=can_edit_content):
                 return view_func(request, *args, **kwargs)
             else:
                 raise PermissionDenied
-        return _wrapped_view
-    return decorator
-
-
-def cacheable(cache_key, timeout=PAGE_CACHE_TIMEOUT):
-    """ Usage:
-
-    class SomeClass(models.Model):
-        # fields [id, name etc]
-
-        @cacheable("SomeClass_get_some_result_{id}")
-        def get_some_result(self):
-            # do some heavy calculations
-            return heavy_calculations()
-
-        @cacheable("SomeClass_get_something_else_{name}")
-        def get_something_else(self):
-            return something_else_calculator(self)
-
-    :type cache_key: unicode
-    """
-    def decorator(func):
-        @wraps(func, assigned=available_attrs(func))
-        def _wrapped_view(self):
-            key = cache_key.format(**self.__dict__)
-            if key in cache:
-                return cache.get(key)
-            res = func(self)
-            cache.set(key, res, timeout)
-            return res
-        return _wrapped_view
-    return decorator
-
-
-def stale_cache(cache_key):
-    """
-    Removes the existing cache
-
-    Usage:
-
-    class SomeClass(models.Model):
-        # fields
-        name = CharField(...)
-
-        @stale_cache("SomeClass_some_key_that_depends_on_name_%(name)")
-        @stale_cache("SomeClass_some_other_key_that_depends_on_name_%(name)")
-        def update_name(self, new_name):
-            self.name = new_name
-            self.save()
-    """
-    def decorator(func):
-        @wraps(func, assigned=available_attrs(func))
-        def _wrapped_view(self, *args, **kw):
-            try:
-                key = cache_key.format(**self.__dict__)
-            except KeyError:
-                # This happens when the model is being saved for the first time.
-                pass
-            else:
-                cache.delete(key)
-            finally:
-                return func(self, *args, **kw)
         return _wrapped_view
     return decorator

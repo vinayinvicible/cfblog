@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
-
 __author__ = 'vinay'
-
 import datetime
 
 from django.conf import settings
@@ -13,7 +11,6 @@ from jsonfield import JSONField
 from tagging.fields import TagField
 
 from .managers import ContentManager
-from .utils import cacheable, stale_cache, get_public_data
 from .validators import validate_url_path, validate_and_get_template
 
 
@@ -61,8 +58,6 @@ class Content(models.Model):
     tags = TagField()
     tease = models.TextField(_('tease'), blank=True,
                              help_text=_('Concise text suggested. Does not appear in RSS feed.'))
-    # TODO: Include S3ImageField
-    # thumbnail = ImageWithThumbsField(upload_to=get_image_path, sizes=(('s', 500, 500), ('r', 450, 600), ('t', 200, 260)), null=True, blank=True)
     notes_todos = models.TextField(_('Notes and Todos'), blank=True)
     auth_data = JSONField(verbose_name=_('author data'), default={}, blank=True,
                           help_text=_("Don't edit this unless you know what this means"))
@@ -88,15 +83,6 @@ class Content(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    @property
-    @cacheable('cfblog_content_{id}')
-    def html(self):
-        return get_public_data(self)
-
-    @stale_cache('cfblog_content_{id}')
-    def save(self, *args, **kwargs):
-        super(Content, self).save(*args, **kwargs)
 
     def get_previous_post(self):
         return self.get_previous_by_publish(Q(status__gte=2), ~Q(category_id=1))

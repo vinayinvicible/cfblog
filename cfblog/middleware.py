@@ -23,7 +23,7 @@ class Middleware(object):
             return response
 
         try:
-            return cms_page_index(request, url_path=path)
+            return cms_page_index(request)
         except Http404:
             return response
         except Exception:
