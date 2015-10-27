@@ -145,10 +145,14 @@ $(document).ready(function () {
             }
 
             var a = $('<li/>');
+            var text = content_key;
+            if (md) {
+                text = '*' + content_key;
+            }
             $('<div/>', {
                 id: content_key,
                 markdown: md,
-                text: content_key
+                text: text
             }).addClass('editable').appendTo(a);
             $('<textarea/>', {
                 id: content_key+'_content',
