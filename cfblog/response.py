@@ -38,7 +38,7 @@ def render(request, template_name=_template_not_defined,
         else:
             try:
                 return render_content(cms_page,
-                                      request=request, template_context={'asd': 'asd'},
+                                      request=request, template_context=template_context,
                                       content_type=content_type, status=status, using=using)
             except (TemplateDoesNotExist, Http404):
                 if settings.DEBUG:
