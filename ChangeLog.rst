@@ -1,5 +1,24 @@
 cfblog ChangeLog
 ================
+0.2.0 - 28-Oct-2015
+-------------------
+
+* `*` is added to fields that are markdown supported.
+
+* lazy importing 'cms_page_index` inside middleware.
+
+* major rework to the structure of cfblog
+
+* removed html caching
+
+* caching the validated templates using lru_cache
+
+* split single render function to three functions
+
+* added template context support for the templates being rendered by cfblog
+
+* modified dum_request to be able to get passed to view
+
 0.1.9 - 20-Oct-2015
 -------------------
 
