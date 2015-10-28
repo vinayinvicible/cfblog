@@ -2,43 +2,19 @@ __author__ = 'vinay'
 import json
 import traceback
 
-from django.conf import settings
-from django.http.response import HttpResponseForbidden, HttpResponse, Http404, JsonResponse
+from django.core.cache import cache
+from django.http.response import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
 from .models import Content
-from .response import render
-from .utils import NAMESPACE_DELIMITER, user_passes_test, can_edit_content
+from .response import render, render_content
+from .utils import user_passes_test
 
 
-def cms_page_index(request, cms_page=None, url_path=None):
-    if not cms_page:
-        url_path = url_path or request.path_info
-
-        if not url_path.startswith('/'):
-            url_path = u'/{}'.format(url_path)
-
-        if settings.APPEND_SLASH and not url_path.endswith('/'):
-            url_path = u'{}/'.format(url_path)
-
-        cms_page = get_object_or_404(Content, url=url_path)
-
-    if can_edit_content(request.user):
-        return render(
-            template_name=cms_page.template,
-            cms_context=cms_page.auth_data,
-            request=request,
-            template_context={'view': 'author',
-                              'cms_data': json.dumps(cms_page.auth_data),
-                              'id': cms_page.id,
-                              'namespace_delimiter': json.dumps(NAMESPACE_DELIMITER)})
-
-    if cms_page.is_public:
-        return HttpResponse(cms_page.html)
-
-    raise Http404("page not found")
+def cms_page_index(request):
+    return render(request)
 
 
 @require_POST
@@ -61,7 +37,9 @@ def save(request, save_type):
     else:
         cms_page.auth_data.update(content)
         try:
-            render(cms_page.template, cms_context=cms_page.auth_data)
+            template_context = cache.get('template_context_{}'.format(cms_page.id))
+            render_content(cms_page, request=request,
+                           template_context=template_context)
         except Exception as e:
             return JsonResponse({'success': False,
                                  'message': 'Unable to parse the new content.\n'

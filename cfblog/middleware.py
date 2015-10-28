@@ -2,8 +2,6 @@ __author__ = 'vinay'
 from django.conf import settings
 from django.http.response import Http404
 
-from .views import cms_page_index
-
 
 class Middleware(object):
 
@@ -18,13 +16,14 @@ class Middleware(object):
         if response.status_code != 404:
             return response
 
+        from .views import cms_page_index
         # we return the original response
         # if the 404 response is given by cms_page_index
         if request.resolver_match and request.resolver_match.func is cms_page_index:
             return response
 
         try:
-            return cms_page_index(request, url_path=path)
+            return cms_page_index(request)
         except Http404:
             return response
         except Exception:

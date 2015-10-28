@@ -98,7 +98,7 @@
     var cms_data = {{ cms_data|safe }};
     var namespace_delimiter = {{ namespace_delimiter|safe }};
     var local_storage_name = '{{ request.path|slugify }}';
-    var cms_page_id = '{{ id }}';
+    var cms_page_id = '{{ cms_page_id }}';
     var static_url = '{{ STATIC_URL }}' + 'cfblog/';
 </script>
 <script src="{{ STATIC_URL }}cfblog/js/jquery-1.7.1.min.js"></script>

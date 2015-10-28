@@ -2,13 +2,15 @@ from __future__ import unicode_literals
 __author__ = 'vinay'
 import re
 
-from django.template.loader import get_template, select_template, TemplateDoesNotExist
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.template.loader import get_template, select_template, TemplateDoesNotExist
+from django.utils.translation import ugettext_lazy as _
+from django.utils.lru_cache import lru_cache
 
 
+@lru_cache()
 def validate_and_get_template(name, using=None):
     if isinstance(name, (list, tuple)):
         return select_template(name, using=using)
