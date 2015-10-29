@@ -121,17 +121,17 @@ def render_content(cms_page,
 
     :return: :raise Http404:
     """
+    template_context = template_context or {}
+    template_context['cms_content'] = cms_page
+
     if request is not None and can_edit_content(request.user):
         editor_context = {'view': 'author',
                           'cms_data': json.dumps(cms_page.auth_data),
                           'cms_page_id': cms_page.id,
                           'namespace_delimiter': json.dumps(NAMESPACE_DELIMITER)}
 
-        if template_context is not None:
-            cache.set('template_context_{}'.format(cms_page.id), template_context, 24 * 60 * 60)
-            template_context.update(editor_context)
-        else:
-            template_context = editor_context
+        cache.set('template_context_{}'.format(cms_page.id), template_context, 24 * 60 * 60)
+        template_context.update(editor_context)
 
         return render_to_response(cms_page.template, template_context,
                                   content_type, status, using, request, cms_page.auth_data)
