@@ -1,5 +1,10 @@
 cfblog ChangeLog
 ================
+0.2.1 - 29-Oct-2015
+-------------------
+
+* Content instance is available inside the templates as `cms_content`. This is only available to those which are rendered using Content model.
+
 0.2.0 - 28-Oct-2015
 -------------------
 
