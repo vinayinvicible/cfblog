@@ -80,7 +80,7 @@ def render_to_response(template_name,
             if isinstance(cms_context, dict):
                 try:
                     content = parse_cms_template(content, cms_context,
-                                                 publish=False)
+                                                 publish=False, request=_request)
                 except (ValidationError, TemplateSyntaxError) as e:
                     raise Http404(e)
             else:

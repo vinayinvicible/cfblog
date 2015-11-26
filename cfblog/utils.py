@@ -83,7 +83,7 @@ NAMESPACE_DELIMITER = '-'
 HTML_PARSER = 'html.parser'
 
 
-def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
+def parse_cms_template(html, dictionary, parent_namespace='', publish=False, request=dum_request):
     """
     Refer to tests for cms syntax
 
@@ -134,7 +134,7 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
                 default_template_name[:-5] if default_template_name.endswith('.html') else default_template_name
             )
 
-        include_html = include_template.render(request=dum_request)
+        include_html = include_template.render(request=request)
 
         tag.attrs['data-cms-namespace'] = local_namespace
         if not publish:
@@ -181,7 +181,7 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False):
 
         new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
         if any(_ in content for _ in CMS_ATTRIBUTES):
-            content = parse_cms_template(content, dictionary, parent_namespace=key)
+            content = parse_cms_template(content, dictionary, parent_namespace=key, request=request)
 
         if md:
             content = markdown(content, False)
