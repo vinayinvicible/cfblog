@@ -95,7 +95,7 @@
     var draft_url = '{% url 'save_cms_content' 'draft' %}';
     var publish_url = '{% url 'save_cms_content' 'publish' %}';
     var CSRF_TOKEN = '{{ csrf_token }}';
-    var cms_data = {{ cms_data|safe }};
+    var cms_data = JSON.parse("{{ cms_data|escapejs }}");
     var namespace_delimiter = {{ namespace_delimiter|safe }};
     var local_storage_name = '{{ request.path|slugify }}';
     var cms_page_id = '{{ cms_page_id }}';
