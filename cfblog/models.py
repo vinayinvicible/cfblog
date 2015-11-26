@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
 __author__ = 'vinay'
-import datetime
-
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 from tagging.fields import TagField
@@ -52,7 +51,7 @@ class Content(models.Model):
                            max_length=255, db_index=True, unique=True, validators=[validate_url_path])
     template = models.CharField(verbose_name=_('template'), max_length=255, validators=[validate_and_get_template])
     status = models.IntegerField(_('status'), choices=STATUS_CHOICES, default=1)
-    publish = models.DateTimeField(_('publish'), default=datetime.datetime.now)
+    publish = models.DateTimeField(_('publish'), default=timezone.now)
     title = models.CharField(_('title'), max_length=200)
     category = models.ForeignKey('Category')
     tags = TagField()
