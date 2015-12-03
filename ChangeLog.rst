@@ -1,5 +1,14 @@
 cfblog ChangeLog
 ================
+0.2.2 - 26-Nov-2015
+-------------------
+
+* changed datetime.now to timezone.now in publish field
+
+* fixed issue where editing page fails if cms_data contains script tag
+
+* fixed issue where base and snippet templates load different csrf_token
+
 0.2.1 - 29-Oct-2015
 -------------------
 
