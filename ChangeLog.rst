@@ -1,5 +1,13 @@
 cfblog ChangeLog
 ================
+0.2.3 - 12-Apr-2016
+-------------------
+* added pre and post publish signals
+
+* added can_publish permission
+
+* added validation on out of date data stored in localstorage and restricted it from being published.
+
 0.2.2 - 26-Nov-2015
 -------------------
 

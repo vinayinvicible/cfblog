@@ -125,7 +125,14 @@ $(document).ready(function () {
         var draft_data = JSON.parse(local_storage[local_storage_name]);
         for (var key in draft_data) {
             if (draft_data.hasOwnProperty(key)) {
-                local_data[key] = draft_data[key]['content']
+                local_data[key] = draft_data[key]['content'];
+                date_in_draft = draft_data[key]['modified'];
+                if(modified_on > date_in_draft){
+                  local_storage.removeItem(local_storage_name);
+                  local_data = {};
+                  alert("Draft data was out of date and has been cleared.");
+                  break;  
+                }
             }
         }
     }
@@ -278,17 +285,38 @@ $(document).ready(function () {
     });
 
     function post_content(url, content) {
+        if (local_storage && local_storage_name in local_storage) {
+            var draft_data = JSON.parse(local_storage[local_storage_name]);
+            for (var key in draft_data) {
+                if (draft_data.hasOwnProperty(key)) {
+                    tmp = draft_data[key]['modified'];
+                    if(typeof min_dt === 'undefined'){
+                        var min_dt = tmp;
+                    }
+                    if(tmp < min_dt){
+                        min_dt = tmp;
+                    }
+                    console.log(min_dt);
+                }
+            }
+        }
         var post_data = {
             'auth_data': JSON.stringify(content),
             'csrfmiddlewaretoken': CSRF_TOKEN,
+            'draft_modified': typeof min_dt === 'undefined'?"":min_dt.toString(),
             'cms_page_id': cms_page_id
         };
         $.post(url, post_data, function (data) {
             if (data.success) {
+                local_storage.removeItem(local_storage_name);
                 location.reload(true);
             } else {
-                console.log('Exception is: ' + data.exception);
+                console.log(data.message_in_detail);
                 alert(data.message);
+                if(data.draft_error || data.success == null){
+                    location.reload(true);
+                    local_storage.removeItem(local_storage_name);
+                }
             }
         }, 'json');
     }

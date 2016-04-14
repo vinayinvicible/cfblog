@@ -11,9 +11,9 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.2.2",
-    author='Vinay Karanam',
-    author_email="vinayinvicible@gmail.com",
+    version="0.2.3",
+    author='Vinay Karanam, Ashish Nayan',
+    author_email="vinayinvicible@gmail.com, nayanashish@gmail.com",
 
     url='https://github.com/Coverfox/cfblog/',
     license='BSD',

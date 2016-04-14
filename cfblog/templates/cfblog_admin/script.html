@@ -100,6 +100,7 @@
     var local_storage_name = '{{ request.path|slugify }}';
     var cms_page_id = '{{ cms_page_id }}';
     var static_url = '{{ STATIC_URL }}' + 'cfblog/';
+    var modified_on = {{ modified_on|safe }};
 </script>
 <script src="{{ STATIC_URL }}cfblog/js/jquery-1.7.1.min.js"></script>
 <script src="{{ STATIC_URL }}cfblog/js/epiceditor.min.js"></script>

@@ -4,6 +4,7 @@ import json
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http.response import Http404, HttpResponse
 from django.template import TemplateSyntaxError, TemplateDoesNotExist
 from django.views.decorators.csrf import csrf_protect
@@ -128,6 +129,7 @@ def render_content(cms_page,
         editor_context = {'view': 'author',
                           'cms_data': json.dumps(cms_page.auth_data),
                           'cms_page_id': cms_page.id,
+                          'modified_on': json.dumps(cms_page.modified_on, cls=DjangoJSONEncoder),
                           'namespace_delimiter': json.dumps(NAMESPACE_DELIMITER)}
 
         cache.set('template_context_{}'.format(cms_page.id), template_context, 24 * 60 * 60)

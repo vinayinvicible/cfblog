@@ -1,8 +1,14 @@
-__author__ = 'vinay'
+import json
+import datetime
 
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.apps import apps
+from django.conf import settings
 
+from .models import Content
 from .utils import parse_cms_template, NAMESPACE_DELIMITER
+
+__author__ = 'vinay'
 
 
 class CMSTests(TestCase):
@@ -241,3 +247,56 @@ class CMSTests(TestCase):
                 </body>
             </html>
         """)
+
+    def test_versioning(self):
+        client = Client()
+        app_label, model = settings.AUTH_USER_MODEL.split('.', 1)
+        User = apps.get_model(app_label, model)
+        user = User.objects.create_superuser(**{
+            User.USERNAME_FIELD: 'test-golbfc',
+            'email': 'test@test.com',
+            'password': 'test123'}
+        )
+        cms_page, _ = Content.objects.get_or_create(
+            url='/test-golbfc/',
+            template="cms_templates/template_1.html",
+            category_id=1,
+            author=user
+        )
+
+        content = """
+                    {
+                      "body":"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                      "body_attr":"random data",
+                      "decrp":"Hi!!",
+                      "title":"Hello World!!!"
+                    }
+                  """
+        t = (cms_page.modified_on + datetime.timedelta(minutes=5)).isoformat()
+        data = {
+                'auth_data': content,
+                'draft_modified': t,
+                'cms_page_id': cms_page.id
+                }
+        self.assertTrue(
+            client.login(**{
+                User.USERNAME_FIELD: 'test-golbfc', 'password': 'test123'
+            })
+        )
+        response1 = client.post(
+            path='/cms/ajax/save/publish/',
+            data=data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response1.status_code, 200)
+        self.assertTrue(json.loads(response1.content)['success'])
+
+        data['draft_modified'] = '2016-04-07T13:45:35.322Z'
+        response2 = client.post(
+            path='/cms/ajax/save/publish/',
+            data=data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response2.status_code, 200)
+        self.assertFalse(json.loads(response2.content)['success'])
+        self.assertTrue(json.loads(response2.content)['draft_error'])

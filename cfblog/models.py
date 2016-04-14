@@ -70,6 +70,7 @@ class Content(models.Model):
     class Meta:
         ordering = ('-publish',)
         get_latest_by = 'publish'
+        permissions = (('can_publish', "Can Publish Posts"),)
 
     @property
     def is_public(self):
