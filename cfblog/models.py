@@ -25,11 +25,11 @@ class Category(models.Model):
     def __unicode__(self):
         return self.title
 
-    def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         assert self.pk is not 1, (
             'Will not delete {} category. Shit breaks if it happens'.format(self.title)
         )
-        super(Category, self).delete(using=using)
+        super(Category, self).delete(*args, **kwargs)
 
 
 def cms_authors():

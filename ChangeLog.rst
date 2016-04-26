@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.4 - 26-Apr-2016
+-------------------
+* support for django 1.9
+
 0.2.3 - 12-Apr-2016
 -------------------
 * added pre and post publish signals
