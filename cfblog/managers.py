@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
@@ -11,7 +12,9 @@ class ContentMixin(object):
         return self.filter(category=category)
 
     def published(self):
-        return self.filter(status__gte=2, publish__lte=timezone.now())
+        return self.filter(
+            status__gte=self.model.PUBLIC, publish__lte=timezone.now()
+        )
 
     def static_pages(self):
         return self.filter(category__id=1)

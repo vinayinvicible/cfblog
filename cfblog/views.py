@@ -1,19 +1,18 @@
+# coding=utf-8
 import json
 import traceback
-from django.utils.dateparse import parse_datetime
 
 from django.core.cache import cache
 from django.http.response import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_datetime
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
 from .models import Content
 from .response import render, render_content
-from .utils import user_passes_test
-from .signals import pre_publish_signal, post_publish_signal
-
-__author__ = 'vinay'
+from .signals import post_publish_signal, pre_publish_signal
+from .utils import can_edit_content, can_publish_content, user_passes_test
 
 
 def cms_page_index(request):
@@ -22,17 +21,25 @@ def cms_page_index(request):
 
 @require_POST
 @csrf_protect
-@user_passes_test()
 def save(request, save_type):
     if not request.is_ajax():
         return HttpResponseForbidden()
 
+    if save_type not in ('draft', 'publish'):
+        return JsonResponse({'success': False}, status=400)
+
+    if save_type == 'draft':
+        test_func = can_edit_content
+    else:
+        test_func = can_publish_content
+
+    return user_passes_test(test_func=test_func)(_save)(request, save_type)
+
+
+def _save(request, save_type):
     post_data = request.POST
 
     if any(_ not in post_data for _ in ('auth_data', 'cms_page_id')):
-        return JsonResponse({'success': False}, status=400)
-
-    if save_type not in ('draft', 'publish'):
         return JsonResponse({'success': False}, status=400)
 
     cms_page = get_object_or_404(Content, id=post_data['cms_page_id'])
@@ -96,7 +103,7 @@ def save(request, save_type):
                             'success': False,
                             'message_in_detail': '\n'.join(errors),
                             'message': """
-                                Empty Tags.
+                                Unable to publish.
                                 Please check console for details
                             """
                         }
@@ -114,8 +121,7 @@ def save(request, save_type):
                             'success': None,
                             'message_in_details': '\n'.join(warns),
                             'message': """
-                                Tags Not Available.
-                                Please check console for details
+                                Please check console for warnings
                             """
                         }
                     )

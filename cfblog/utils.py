@@ -1,21 +1,19 @@
-__author__ = 'vinay'
-from functools import wraps
+# coding=utf-8
 import re
+from functools import wraps
 
 from bs4 import BeautifulSoup, Tag
-from mistune import markdown
-
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.test.client import Client
 from django.template import TemplateSyntaxError
+from django.test.client import Client
 from django.utils.decorators import available_attrs
 from django.utils.functional import SimpleLazyObject
+from mistune import markdown
 
-from .validators import validate_and_get_template, ValidationError
-
+from .validators import ValidationError, validate_and_get_template
 
 # we are initialising Client as global variable
 # so that we need to load the middlewares only once
@@ -23,15 +21,12 @@ _dum_client = Client()
 
 
 @SimpleLazyObject
-def dum_request(**request_settings):
+def dum_request():
     """
     Returns WSGIRequest object that is ready to be passed into a view
     """
     request_handler = _dum_client.handler
-    environ = _dum_client._base_environ(**request_settings)
-    if environ.get('PATH_INFO', '/') == '/':
-        # we are doing this because the catchall url does not catch '/'
-        environ.update({'PATH_INFO': '/asd/'})
+    environ = _dum_client._base_environ()
 
     request = WSGIRequest(environ)
     if request_handler._request_middleware is None:
@@ -61,7 +56,9 @@ def dum_request(**request_settings):
 
             # Apply view middleware
             for middleware_method in request_handler._view_middleware:
-                response = middleware_method(request, callback, callback_args, callback_kwargs)
+                response = middleware_method(
+                    request, callback, callback_args, callback_kwargs
+                )
                 if response:
                     break
     except:
@@ -69,13 +66,30 @@ def dum_request(**request_settings):
     finally:
         return request
 
+ATTR_TAG = 'data-cms-attr'
+INCLUDE_TAG = 'data-cms-include'
+CONTENT_TAG = 'data-cms-content'
+NAMESPACE_TAG = 'data-cms-namespace'
+REPLACE_TAG = 'data-cms-replace'
 
-CMS_ATTRIBUTES = ['data-cms-attr', 'data-cms-content', 'data-cms-include']
+CMS_ATTRIBUTES = [ATTR_TAG, CONTENT_TAG, INCLUDE_TAG]
 
-attr_re = re.compile(r'^(?:(?:[a-z-]+:[a-z_0-9]+)+(?:\|(?:[a-z-]+:[a-z_0-9]+))*)*$', re.IGNORECASE)
-content_re = re.compile(r'^(?:md:)?([a-z_0-9])+$', re.IGNORECASE)
-include_html_re = re.compile(r'^(?:(?:[a-z_0-9])+:)?.+$', re.IGNORECASE)
-namespace_re = re.compile(r'^(?:[a-z_0-9])+$', re.IGNORECASE)
+attr_re = re.compile(
+    r'^(?:(?:[a-z-]+:[a-z_0-9]+)+(?:\|(?:[a-z-]+:[a-z_0-9]+))*)*$',
+    re.IGNORECASE
+)
+content_re = re.compile(
+    r'^(?:md:)?([a-z_0-9])+$',
+    re.IGNORECASE
+)
+include_html_re = re.compile(
+    r'^(?:(?:[a-z_0-9])+:)?.+$',
+    re.IGNORECASE
+)
+namespace_re = re.compile(
+    r'^(?:[a-z_0-9])+$',
+    re.IGNORECASE
+)
 
 NAMESPACE_DELIMITER = '-'
 
@@ -83,44 +97,54 @@ NAMESPACE_DELIMITER = '-'
 HTML_PARSER = 'html.parser'
 
 
-def parse_cms_template(html, dictionary, parent_namespace='', publish=False, request=dum_request):
+def parse_cms_template(html, dictionary, parent_namespace='',
+                       public=False, request=dum_request):
     """
     Refer to tests for cms syntax
 
     :param html: Html to be parsed using cms syntax
     :type html: str
-    :param dictionary: Dictionary that is to be used to parse the cms attributes in template
+    :param dictionary: Dictionary that is to be used to parse the
+    cms attributes in template
     :type dictionary: dict
     :param parent_namespace: Namespace of the html content to be parsed (if any)
     :type parent_namespace: str
-    :param publish: This will hide sensitive info while rendering for public usage
-    :type publish: bool
+    :param public: Renders the page for public usage
+    :type public: bool
+    :param request: Request object to be used for template context
     :rtype : str
     """
     soup = BeautifulSoup(html, features=HTML_PARSER)
 
-    for tag in soup.find_all(attrs={'data-cms-include': include_html_re}):
+    for tag in soup.find_all(attrs={INCLUDE_TAG: include_html_re}):
         namespace = get_namespace(tag, parent_namespace=parent_namespace)
-        include_value = tag.attrs.pop('data-cms-include')
+        include_value = tag.attrs.pop(INCLUDE_TAG)
         if ':' in include_value:
             local_namespace, default_template_name = include_value.split(':', 1)
         else:
             try:
-                local_namespace = tag.attrs['data-cms-namespace']
+                local_namespace = tag.attrs[NAMESPACE_TAG]
             except KeyError:
                 raise TemplateSyntaxError(
-                    'value of data-cms-include should be of the form {namespace}:{template path}'
-                    'if namespace is not specified then another attribute data-cms-namespace should be defined'
+                    'value of data-cms-include should be of the form '
+                    '{namespace}:{template path}.'
+                    'if namespace is not specified then another attribute '
+                    'data-cms-namespace should be defined'
                 )
             else:
                 if not namespace_re.match(local_namespace):
                     raise TemplateSyntaxError(
-                        '"{}" is not a valid value for data-cms-namespace'.format(local_namespace)
+                        '"{}" is not a valid value for {}'.format(
+                            local_namespace, NAMESPACE_TAG
+                        )
                     )
                 else:
                     default_template_name = include_value
 
-        namespace += NAMESPACE_DELIMITER + local_namespace if namespace else local_namespace
+        if namespace:
+            namespace += NAMESPACE_DELIMITER + local_namespace
+        else:
+            namespace = local_namespace
 
         template_name = dictionary.get(namespace, default_template_name)
 
@@ -130,15 +154,13 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False, req
         try:
             include_template = validate_and_get_template(template_name)
         except ValidationError:
-            include_template = validate_and_get_template(
-                default_template_name[:-5] if default_template_name.endswith('.html') else default_template_name
-            )
+            include_template = validate_and_get_template(default_template_name)
 
         include_html = include_template.render(request=request)
 
-        tag.attrs['data-cms-namespace'] = local_namespace
-        if not publish:
-            tag.attrs['data-cms-include'] = template_name
+        tag.attrs[NAMESPACE_TAG] = local_namespace
+        if not public:
+            tag.attrs[INCLUDE_TAG] = template_name
 
         new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
         new_tag.insert(0, BeautifulSoup(include_html, features=HTML_PARSER))
@@ -148,9 +170,9 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False, req
     # Also do not move it inside the loop. It will mess up the variable scoping
     soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
 
-    for tag in soup.find_all(attrs={'data-cms-attr': attr_re}):
+    for tag in soup.find_all(attrs={ATTR_TAG: attr_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
-        attrs = tag['data-cms-attr'].split('|')
+        attrs = tag[ATTR_TAG].split('|')
 
         for attr in attrs:
             attr_name, key = attr.split(':', 1)
@@ -161,9 +183,9 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False, req
 
     soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
 
-    for tag in soup.find_all(attrs={'data-cms-content': content_re}):
+    for tag in soup.find_all(attrs={CONTENT_TAG: content_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
-        key = tag['data-cms-content']
+        key = tag[CONTENT_TAG]
         md = False
 
         if key.startswith('md:'):
@@ -172,21 +194,31 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False, req
 
         key = _ns + NAMESPACE_DELIMITER + key if _ns else key
 
-        if key in dictionary:
-            content = dictionary[key]
+        if key in dictionary or REPLACE_TAG in tag.attrs:
+            # REPLACE_TAG will be replaced with it's content.
+            # So, it doesn't make much sense to process it in else loop
+            content = dictionary.get(key, '')
         else:
             content = tag.encode_contents()
             if not any(_ in content for _ in CMS_ATTRIBUTES):
                 continue
 
-        new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
         if any(_ in content for _ in CMS_ATTRIBUTES):
-            content = parse_cms_template(content, dictionary, parent_namespace=key, request=request)
+            content = parse_cms_template(
+                html=content, dictionary=dictionary,
+                parent_namespace=key, request=request
+            )
 
         if md:
             content = markdown(content, False)
 
-        new_tag.insert(0, BeautifulSoup(content, features=HTML_PARSER))
+        if public and REPLACE_TAG in tag.attrs:
+            new_tag = BeautifulSoup(content, features=HTML_PARSER)
+        else:
+            # We don't replace the tag in auth render so as to keep it editable
+            new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
+            new_tag.insert(0, BeautifulSoup(content, features=HTML_PARSER))
+
         tag.replace_with(new_tag)
 
     soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
@@ -195,8 +227,10 @@ def parse_cms_template(html, dictionary, parent_namespace='', publish=False, req
 
 
 def get_namespace(tag, parent_namespace=''):
-    ancestor_namespaces = [parent.attrs.get('data-cms-namespace') or parent.attrs.get('data-cms-content')
-                           for parent in tag.find_parents(is_namespace_parent)]
+    ancestor_namespaces = [
+        parent.attrs.get(NAMESPACE_TAG) or parent.attrs.get(CONTENT_TAG)
+        for parent in tag.find_parents(is_namespace_parent)
+    ]
 
     if parent_namespace:
         ancestor_namespaces.append(parent_namespace)
@@ -206,17 +240,25 @@ def get_namespace(tag, parent_namespace=''):
 
 def is_namespace_parent(tag):
     attrs = tag.attrs
-    if namespace_re.match(attrs.get('data-cms-namespace', '')) or content_re.match(attrs.get('data-cms-content', '')):
+    if namespace_re.match(attrs.get(NAMESPACE_TAG, '')):
+        return True
+
+    if content_re.match(attrs.get(CONTENT_TAG, '')):
         return True
 
     return False
 
 
 def can_edit_content(user):
-    return user.has_perm('cfblog.change_content')
+    return any(user.has_perm(perm)
+               for perm in ('cfblog.change_content', 'cfblog.can_publish'))
 
 
-def user_passes_test(test_func=can_edit_content):
+def can_publish_content(user):
+    return user.has_perm('cfblog.can_publish')
+
+
+def user_passes_test(test_func=None):
     """
     Similar to user_passes_test in django.contrib.auth.decorators.
     Instead of redirecting it just raises PermissionDenied.

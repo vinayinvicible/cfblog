@@ -1,0 +1,16 @@
+[run]
+branch = 0
+cover_pylib = 0
+include = cfblog/*
+omit =
+    cfblog/tests.py
+    cfblog/admin.py
+    cfblog/managers.py
+    cfblog/migrations/*
+
+[report]
+omit =
+    cfblog/tests.py
+    cfblog/admin.py
+    cfblog/managers.py
+    cfblog/migrations/*

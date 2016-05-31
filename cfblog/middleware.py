@@ -1,4 +1,4 @@
-__author__ = 'vinay'
+# coding=utf-8
 from django.conf import settings
 from django.http.response import Http404
 
@@ -19,7 +19,7 @@ class Middleware(object):
         from .views import cms_page_index
         # we return the original response
         # if the 404 response is given by cms_page_index
-        if request.resolver_match and request.resolver_match.func is cms_page_index:
+        if getattr(request.resolver_match, 'func', None) is cms_page_index:
             return response
 
         try:

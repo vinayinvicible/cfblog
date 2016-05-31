@@ -1,5 +1,14 @@
 cfblog ChangeLog
 ================
+0.2.5 - 31-May-2016
+-------------------
+* added support for new attribute `data-cms-replace`. when used in conjuction with `data-cms-content` will replace the tag instead of inserting into it
+* renamed the argument `publish` to `public` in `parse_cms_template` [Backward Incompatible]
+* `render_to_response` takes a new param `public` which will be passed to `parse_cms_template`
+* added a model method `get_public_html` for `Content` to get the public html without publishing [might raise exceptions]
+* can filter `Contet` using author in admin UI
+* bug-fixes
+
 0.2.4 - 26-Apr-2016
 -------------------
 * support for django 1.9

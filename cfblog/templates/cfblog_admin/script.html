@@ -92,8 +92,8 @@
 
 </style>
 <script type="text/javascript">
-    var draft_url = '{% url 'save_cms_content' 'draft' %}';
-    var publish_url = '{% url 'save_cms_content' 'publish' %}';
+    var draft_url = '{% url 'save_cms_content' %}';
+    var publish_url = '{% url 'publish_cms_content' %}';
     var CSRF_TOKEN = '{{ csrf_token }}';
     var cms_data = JSON.parse("{{ cms_data|escapejs }}");
     var namespace_delimiter = {{ namespace_delimiter|safe }};
