@@ -1,3 +1,10 @@
+.. image:: https://travis-ci.org/Coverfox/cfblog.svg?branch=master
+    :target: https://travis-ci.org/Coverfox/cfblog
+
+.. image:: https://www.quantifiedcode.com/api/v1/project/7d02a86019db4fda96fb2fb8fecce8d2/badge.svg
+  :target: https://www.quantifiedcode.com/app/project/7d02a86019db4fda96fb2fb8fecce8d2
+  :alt: Code issues
+
 What is cfblog?
 ===============
 
