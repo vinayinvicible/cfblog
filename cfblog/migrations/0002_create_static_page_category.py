@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import warnings
+import sys
 
 from django.core.management.color import no_style
 from django.db import migrations
@@ -8,8 +9,7 @@ from django.db import migrations
 
 def create_static_page_category(apps, schema_editor):
     Category = apps.get_model('cfblog', 'Category')
-    print '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-    print 'Creating the static pages category'
+    sys.stdout.write('Creating the static pages category')
     if Category.objects.filter(id=1):
         warnings.warn(
             "Entry for static pages already exists."
@@ -31,21 +31,17 @@ def create_static_page_category(apps, schema_editor):
             operation = migrations.RunSQL(sql=sql_statements)
             operation.database_forwards('cfblog', schema_editor, None, None)
 
-    print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-
 
 def delete_static_page_category(apps, schema_editor):
     Category = apps.get_model('cfblog', 'Category')
     categories = Category.objects.filter(id=1)
-    print '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-    print 'Deleting the static pages category'
+    sys.stdout.write('Deleting the static pages category')
     if categories:
         categories.delete()
     else:
         warnings.warn(
             "Entry for static pages does not exist."
         )
-    print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 
 
 class Migration(migrations.Migration):

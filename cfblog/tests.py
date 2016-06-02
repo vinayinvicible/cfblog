@@ -337,8 +337,13 @@ class RegressionTests(TestCase):
             User.USERNAME_FIELD: 'author',
             'password': 'test123'
         }
-        editor = User.objects.create_user(is_active=True, **editor_credentials)
-        author = User.objects.create_user(is_active=True, **author_credentials)
+        editor = User.objects.create_user(**editor_credentials)
+        author = User.objects.create_user(**author_credentials)
+        # We are explicitly setting is_active because of django 1.8
+        editor.is_active = True
+        editor.save()
+        author.is_active = True
+        author.save()
         edit_permission = Permission.objects.get(
             codename='change_content',
             content_type__app_label='cfblog'

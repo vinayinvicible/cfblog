@@ -14,7 +14,7 @@ def emit_post_migrate_to_avoid_breaking_continuity(schema_editor):
     """
     db_alias = schema_editor.connection.alias
     try:
-        emit_post_migrate_signal(2, False, db_alias)
+        emit_post_migrate_signal(0, False, db_alias)
     except TypeError:  # Django < 1.9
         try:
             emit_post_migrate_signal(2, False, 'default', db_alias)
