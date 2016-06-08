@@ -5,6 +5,8 @@ import json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.test import SimpleTestCase, TestCase
+from django.test.utils import override_settings
+from django.utils.decorators import method_decorator
 
 from .models import Content
 from .utils import NAMESPACE_DELIMITER, parse_cms_template
@@ -12,6 +14,7 @@ from .utils import NAMESPACE_DELIMITER, parse_cms_template
 
 class BaseTests(SimpleTestCase):
     cms_context = {}
+    template_context = None
 
     def setUp(self):
         self.html = """
@@ -28,7 +31,8 @@ class BaseTests(SimpleTestCase):
 
     @property
     def output(self):
-        return parse_cms_template(self.html, self.cms_context, public=True)
+        return parse_cms_template(self.html, self.cms_context, public=True,
+                                  template_context=self.template_context)
 
 
 class BasicTagTests(BaseTests):
@@ -280,6 +284,38 @@ class CMSTests(BaseTests):
             self.output
         )
 
+    def test_template_context(self):
+        self.cms_context = {
+            'h1': '<div data-cms-include="namespace:cms_templates/snippet">'
+                  '</div>',
+            NAMESPACE_DELIMITER.join(
+                ('h1', 'namespace', 'text')
+            ): '##Heading##'
+        }
+        self.template_context = {
+            'greeting': 'hello'
+        }
+        self.assertHTMLEqual(
+            """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
+                    <div data-cms-include="cms_templates/snippet"
+                        data-cms-namespace="namespace">
+                            hello
+                            <div data-cms-content="md:text">
+                                <h2>Heading</h2>
+                            </div>
+                    </div>
+                    </h1>
+                </body>
+            </html>
+            """,
+            self.output
+        )
+
     def test_markdown(self):
         self.html = """
         <html>
@@ -389,6 +425,12 @@ class RegressionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.author_client.get(self.cms_page.url)
         self.assertEqual(response.status_code, 200)
+
+    @method_decorator(override_settings(ROOT_URLCONF=()))
+    def test_custom_url_conf(self):
+        # response should be served by the middleware
+        self.test_published_url()
+        self.test_unpublished_url()
 
     def test_editor_cannot_publish(self):
         response1 = self.editor_client.post(

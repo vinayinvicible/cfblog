@@ -1,5 +1,11 @@
 cfblog ChangeLog
 ================
+0.2.6 - 8-Jun-2016
+------------------
+* `parse_cms_template` takes `template_context` which will be used to render the included snippets
+* renamed the argument `dictionary` to `cms_context` in `parse_cms_template` [Backward Incompatible]
+* added two settings `CFBLOG_CAN_EDIT` and `CFBLOG_CAN_PUBLISH` which should take the user and return if the user has permission to edit or publish the content respectively
+
 0.2.5 - 31-May-2016
 -------------------
 * added support for new attribute `data-cms-replace`. when used in conjuction with `data-cms-content` will replace the tag instead of inserting into it

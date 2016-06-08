@@ -9,10 +9,11 @@ from django.utils.dateparse import parse_datetime
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
+from .conf import settings
 from .models import Content
 from .response import render, render_content
 from .signals import post_publish_signal, pre_publish_signal
-from .utils import can_edit_content, can_publish_content, user_passes_test
+from .utils import user_passes_test
 
 
 def cms_page_index(request):
@@ -29,9 +30,9 @@ def save(request, save_type):
         return JsonResponse({'success': False}, status=400)
 
     if save_type == 'draft':
-        test_func = can_edit_content
+        test_func = settings.CFBLOG_CAN_EDIT
     else:
-        test_func = can_publish_content
+        test_func = settings.CFBLOG_CAN_PUBLISH
 
     return user_passes_test(test_func=test_func)(_save)(request, save_type)
 

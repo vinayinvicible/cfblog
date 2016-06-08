@@ -1,7 +1,6 @@
 # coding=utf-8
 import json
 
-from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -9,9 +8,9 @@ from django.http.response import Http404, HttpResponse
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.views.decorators.csrf import csrf_protect
 
+from .conf import settings
 from .models import Content
-from .utils import (NAMESPACE_DELIMITER, can_edit_content, dum_request,
-                    parse_cms_template)
+from .utils import NAMESPACE_DELIMITER, dum_request, parse_cms_template
 from .validators import validate_and_get_template
 
 _template_not_defined = object()
@@ -105,8 +104,9 @@ def render_to_response(template_name,
             if isinstance(cms_context, dict):
                 try:
                     content = parse_cms_template(
-                        html=content, dictionary=cms_context,
-                        public=public, request=_request
+                        html=content, cms_context=cms_context,
+                        public=public, request=_request,
+                        template_context=template_context
                     )
                 except (ValidationError, TemplateSyntaxError) as e:
                     raise Http404(e)
@@ -153,7 +153,7 @@ def render_content(cms_page,
     template_context = template_context or {}
     template_context['cms_content'] = cms_page
 
-    if request is not None and can_edit_content(request.user):
+    if request is not None and settings.CFBLOG_CAN_EDIT(request.user):
         editor_context = {
             'view': 'author',
             'cms_data': json.dumps(cms_page.auth_data),

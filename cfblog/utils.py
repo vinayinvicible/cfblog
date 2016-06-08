@@ -97,21 +97,24 @@ NAMESPACE_DELIMITER = '-'
 HTML_PARSER = 'html.parser'
 
 
-def parse_cms_template(html, dictionary, parent_namespace='',
-                       public=False, request=dum_request):
+def parse_cms_template(html, cms_context, parent_namespace='', public=False,
+                       request=dum_request, template_context=None):
     """
     Refer to tests for cms syntax
 
     :param html: Html to be parsed using cms syntax
     :type html: str
-    :param dictionary: Dictionary that is to be used to parse the
+    :param cms_context: Dictionary that is to be used to parse the
     cms attributes in template
-    :type dictionary: dict
+    :type cms_context: dict
     :param parent_namespace: Namespace of the html content to be parsed (if any)
     :type parent_namespace: str
     :param public: Renders the page for public usage
     :type public: bool
     :param request: Request object to be used for template context
+    :param template_context: Template context to be used for rendering the
+    base and included templates
+    :type template_context: dict
     :rtype : str
     """
     soup = BeautifulSoup(html, features=HTML_PARSER)
@@ -146,7 +149,7 @@ def parse_cms_template(html, dictionary, parent_namespace='',
         else:
             namespace = local_namespace
 
-        template_name = dictionary.get(namespace, default_template_name)
+        template_name = cms_context.get(namespace, default_template_name)
 
         if template_name.endswith('.html'):
             template_name = template_name[:-5]
@@ -156,7 +159,7 @@ def parse_cms_template(html, dictionary, parent_namespace='',
         except ValidationError:
             include_template = validate_and_get_template(default_template_name)
 
-        include_html = include_template.render(request=request)
+        include_html = include_template.render(template_context, request)
 
         tag.attrs[NAMESPACE_TAG] = local_namespace
         if not public:
@@ -178,8 +181,8 @@ def parse_cms_template(html, dictionary, parent_namespace='',
             attr_name, key = attr.split(':', 1)
             key = _ns + NAMESPACE_DELIMITER + key if _ns else key
 
-            if key in dictionary:
-                tag[attr_name] = dictionary[key]
+            if key in cms_context:
+                tag[attr_name] = cms_context[key]
 
     soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
 
@@ -194,10 +197,10 @@ def parse_cms_template(html, dictionary, parent_namespace='',
 
         key = _ns + NAMESPACE_DELIMITER + key if _ns else key
 
-        if key in dictionary or REPLACE_TAG in tag.attrs:
+        if key in cms_context or REPLACE_TAG in tag.attrs:
             # REPLACE_TAG will be replaced with it's content.
             # So, it doesn't make much sense to process it in else loop
-            content = dictionary.get(key, '')
+            content = cms_context.get(key, '')
         else:
             content = tag.encode_contents()
             if not any(_ in content for _ in CMS_ATTRIBUTES):
@@ -205,8 +208,8 @@ def parse_cms_template(html, dictionary, parent_namespace='',
 
         if any(_ in content for _ in CMS_ATTRIBUTES):
             content = parse_cms_template(
-                html=content, dictionary=dictionary,
-                parent_namespace=key, request=request
+                html=content, cms_context=cms_context, parent_namespace=key,
+                request=request, template_context=template_context
             )
 
         if md:
