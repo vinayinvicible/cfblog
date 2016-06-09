@@ -109,6 +109,8 @@ def render_to_response(template_name,
                         template_context=template_context
                     )
                 except (ValidationError, TemplateSyntaxError) as e:
+                    if settings.DEBUG:
+                        raise
                     raise Http404(e)
             else:
                 raise ValueError('cms_context should be an instance of dict')

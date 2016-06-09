@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.7 - 9-Jun-2016
+------------------
+* If `DEBUG` is enabled `render_to_response` do not wrap exceptions as `Http404`
+
 0.2.6 - 8-Jun-2016
 ------------------
 * `parse_cms_template` takes `template_context` which will be used to render the included snippets
