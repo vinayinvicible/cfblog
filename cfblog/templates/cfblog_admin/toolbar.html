@@ -13,7 +13,7 @@
                     Hide >>
                 </button>
                 <button id="save_content">Save as draft</button>
-                {% if perms.cfblog.can_publish %}
+                {% if can_publish %}
                     <button id="publish">Publish</button>
                 {% endif %}                
             </li>

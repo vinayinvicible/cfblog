@@ -59,3 +59,13 @@ class Migration(migrations.Migration):
             reverse_code=migrations.RunPython.noop
         )
     ]
+
+    def __init__(self, *args, **kwargs):
+        super(Migration, self).__init__(*args, **kwargs)
+        from django.apps import apps
+        # emit_post_migrate_signal tries to create permissions and sites
+        # so sites and auth app should be migrated before this migration
+        # we also need to check if they are present in INSTALLED_APPS
+        for app in ('sites', 'auth'):
+            if app in apps.app_configs:
+                self.dependencies.append((app, '__first__'))

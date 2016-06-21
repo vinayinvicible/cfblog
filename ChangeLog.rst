@@ -1,5 +1,10 @@
 cfblog ChangeLog
 ================
+0.2.8 - 21-Jun-2016
+-------------------
+* fix for migrations failing if `cfblog` is migrated before `sites` app
+* publish button now checks for publish permissions using settings rather than user permissions
+
 0.2.7 - 9-Jun-2016
 ------------------
 * If `DEBUG` is enabled `render_to_response` do not wrap exceptions as `Http404`

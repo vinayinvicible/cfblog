@@ -163,7 +163,8 @@ def render_content(cms_page,
             'modified_on': json.dumps(
                 cms_page.modified_on, cls=DjangoJSONEncoder
             ),
-            'namespace_delimiter': json.dumps(NAMESPACE_DELIMITER)
+            'namespace_delimiter': json.dumps(NAMESPACE_DELIMITER),
+            'can_publish': settings.CFBLOG_CAN_PUBLISH(request.user),
         }
 
         cache.set(
