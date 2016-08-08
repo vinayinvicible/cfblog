@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.9 - 8-Aug-2016
+------------------
+* support for mutiple static page categories
+
 0.2.8 - 21-Jun-2016
 -------------------
 * fix for migrations failing if `cfblog` is migrated before `sites` app

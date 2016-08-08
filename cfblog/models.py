@@ -20,6 +20,7 @@ class Category(models.Model):
     title = models.CharField(_('title'), max_length=100,
                              unique=True, db_index=True)
     description = models.TextField(_('description'))
+    is_static = models.BooleanField(default=False, db_index=True)
 
     class Meta(object):
         verbose_name_plural = _('categories')
@@ -27,14 +28,6 @@ class Category(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    def delete(self, *args, **kwargs):
-        assert self.pk is not 1, (
-            'Will not delete {} category. Shit breaks if it happens'.format(
-                self.title
-            )
-        )
-        super(Category, self).delete(*args, **kwargs)
 
 
 def cms_authors():
@@ -106,12 +99,12 @@ class Content(models.Model):
 
     def get_previous_post(self):
         return self.get_previous_by_publish(
-            Q(status__gte=self.PUBLIC), ~Q(category_id=1)
+            Q(status__gte=self.PUBLIC), ~Q(category__is_static=True)
         )
 
     def get_next_post(self):
         return self.get_next_by_publish(
-            Q(status__gte=self.PUBLIC), ~Q(category_id=1)
+            Q(status__gte=self.PUBLIC), ~Q(category__is_static=True)
         )
 
     def get_absolute_url(self):

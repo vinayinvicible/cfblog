@@ -17,10 +17,10 @@ class ContentMixin(object):
         )
 
     def static_pages(self):
-        return self.filter(category__id=1)
+        return self.filter(category__is_static=True)
 
     def blog_posts(self):
-        return self.exclude(category__id=1)
+        return self.filter(category__is_static=False)
 
 
 class ContentQuerySet(QuerySet, ContentMixin):
