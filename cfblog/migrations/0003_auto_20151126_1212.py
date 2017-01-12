@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='content',
             name='auth_data',
-            field=jsonfield.fields.JSONField(default={}, help_text="Don't edit this unless you know what this means", verbose_name='author data', blank=True),
+            field=jsonfield.fields.JSONField(default=dict, help_text="Don't edit this unless you know what this means", verbose_name='author data', blank=True),
         ),
         migrations.AlterField(
             model_name='content',
             name='public_data',
-            field=jsonfield.fields.JSONField(default={}, help_text="Don't edit this unless you know what this means", verbose_name='public data', blank=True),
+            field=jsonfield.fields.JSONField(default=dict, help_text="Don't edit this unless you know what this means", verbose_name='public data', blank=True),
         ),
         migrations.AlterField(
             model_name='content',

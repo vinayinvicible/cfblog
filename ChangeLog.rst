@@ -1,5 +1,10 @@
 cfblog ChangeLog
 ================
+0.2.10 - 13-Jan-2017
+--------------------
+* removed redundant html parsing. this will decrease the cms rendering time significantly.
+* removed mutable defaults for JSONField.
+
 0.2.9 - 8-Aug-2016
 ------------------
 * support for mutiple static page categories

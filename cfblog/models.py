@@ -67,11 +67,11 @@ class Content(models.Model):
     )
     notes_todos = models.TextField(_('Notes and Todos'), blank=True)
     auth_data = JSONField(
-        verbose_name=_('author data'), default={}, blank=True,
+        verbose_name=_('author data'), default=dict, blank=True,
         help_text=_("Don't edit this unless you know what this means")
     )
     public_data = JSONField(
-        verbose_name=_('public data'), default={}, blank=True,
+        verbose_name=_('public data'), default=dict, blank=True,
         help_text=_("Don't edit this unless you know what this means")
     )
     author = models.ForeignKey(settings.AUTH_USER_MODEL,

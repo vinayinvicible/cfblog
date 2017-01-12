@@ -165,13 +165,10 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
         if not public:
             tag.attrs[INCLUDE_TAG] = template_name
 
-        new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
-        new_tag.insert(0, BeautifulSoup(include_html, features=HTML_PARSER))
-        tag.replaceWith(new_tag)
+        replace_tag_content(tag=tag, content=include_html)
 
     # soup does not recognize the changes made in above loop unless I do this
     # Also do not move it inside the loop. It will mess up the variable scoping
-    soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
 
     for tag in soup.find_all(attrs={ATTR_TAG: attr_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
@@ -183,8 +180,6 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
 
             if key in cms_context:
                 tag[attr_name] = cms_context[key]
-
-    soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
 
     for tag in soup.find_all(attrs={CONTENT_TAG: content_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
@@ -217,16 +212,29 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
 
         if public and REPLACE_TAG in tag.attrs:
             new_tag = BeautifulSoup(content, features=HTML_PARSER)
+            tag.replace_with(new_tag)
         else:
             # We don't replace the tag in auth render so as to keep it editable
-            new_tag = Tag(soup, name=tag.name, attrs=tag.attrs)
-            new_tag.insert(0, BeautifulSoup(content, features=HTML_PARSER))
+            replace_tag_content(tag=tag, content=content)
 
-        tag.replace_with(new_tag)
-
-    soup = BeautifulSoup(soup.encode_contents(), features=HTML_PARSER)
     # don't use soup.prettify as it will insert empty spaces inside textarea
     return soup.encode_contents()
+
+
+def replace_tag_content(tag, content):
+    tag.clear()
+
+    if isinstance(content, basestring):
+        # Don't even bother
+        if not content:
+            return tag
+        content = BeautifulSoup(content, features=HTML_PARSER)
+
+    tag.append(content)
+    if content.contents:
+        # Not sure why .append doesn't do this by default
+        tag.next_element = content.contents[0]
+    return tag
 
 
 def get_namespace(tag, parent_namespace=''):
