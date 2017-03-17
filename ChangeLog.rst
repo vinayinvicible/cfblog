@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.11 - 17-Mar-2017
+--------------------
+* removed hidden attribute from editor tags. this fixes recent amp release making editors invisible.
+
 0.2.10 - 13-Jan-2017
 --------------------
 * removed redundant html parsing. this will decrease the cms rendering time significantly.

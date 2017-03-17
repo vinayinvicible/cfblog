@@ -131,7 +131,7 @@ $(document).ready(function () {
                   local_storage.removeItem(local_storage_name);
                   local_data = {};
                   alert("Draft data was out of date and has been cleared.");
-                  break;  
+                  break;
                 }
             }
         }
@@ -169,7 +169,7 @@ $(document).ready(function () {
             a.appendTo($('.cms_toolbar_list'));
             $('<div/>', {
                 id: content_key+'_editor',
-                hidden: 'hidden'
+                style: 'visibility: hidden;'
             }).appendTo($('.cms_editor #editors'));
         }
 
@@ -196,7 +196,7 @@ $(document).ready(function () {
                 a.appendTo($('.cms_toolbar_list'));
                 $('<div/>', {
                     id: key+'_editor',
-                    hidden: 'hidden'
+                    style: 'visibility: hidden;'
                 }).appendTo($('.cms_editor #editors'));
             });
         }
