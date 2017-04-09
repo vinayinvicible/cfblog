@@ -13,7 +13,7 @@ from .utils import NAMESPACE_DELIMITER, parse_cms_template
 
 
 class BaseTests(SimpleTestCase):
-    cms_context = {}
+    cms_context = None
     template_context = None
 
     def setUp(self):
@@ -352,6 +352,45 @@ class CMSTests(BaseTests):
                                 <h2>Heading</h2>
                             </div>
                     </div>
+                    </h1>
+                </body>
+            </html>
+            """,
+            self.output
+        )
+
+
+class TemplateEngineSyntaxTests(BaseTests):
+
+    @method_decorator(override_settings(STATIC_URL='/static/'))
+    def test_data_cms_content(self):
+        self.cms_context = {"h1": "{% load static %}{% static 'lol.jpg'%}"}
+        self.assertHTMLEqual(
+            """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="h1" data-cms-attr="id:id" id="orig">
+                        /static/lol.jpg
+                    </h1>
+                </body>
+            </html>
+            """,
+            self.output
+        )
+
+    @method_decorator(override_settings(STATIC_URL='/static/'))
+    def test_data_cms_attr(self):
+        self.cms_context = {"id": "{{ STATIC_URL }}"}
+        self.assertHTMLEqual(
+            """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <h1 data-cms-content="h1" data-cms-attr="id:id" id="/static/">
+                        hello
                     </h1>
                 </body>
             </html>

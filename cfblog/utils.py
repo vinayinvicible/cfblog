@@ -2,13 +2,16 @@
 import re
 from functools import wraps
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.template import TemplateSyntaxError
+from django.template import TemplateSyntaxError, Template
+from django.template.base import tag_re as django_tag_re
+from django.template.context import make_context
 from django.test.client import Client
+from django.utils import six
 from django.utils.decorators import available_attrs
 from django.utils.functional import SimpleLazyObject
 from mistune import markdown
@@ -20,6 +23,7 @@ from .validators import ValidationError, validate_and_get_template
 _dum_client = Client()
 
 
+# noinspection PyTypeChecker,PyProtectedMember
 @SimpleLazyObject
 def dum_request():
     """
@@ -98,7 +102,7 @@ HTML_PARSER = 'html.parser'
 
 
 def parse_cms_template(html, cms_context, parent_namespace='', public=False,
-                       request=dum_request, template_context=None):
+                       request=dum_request, template_context=None, using=None):
     """
     Refer to tests for cms syntax
 
@@ -115,6 +119,7 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
     :param template_context: Template context to be used for rendering the
     base and included templates
     :type template_context: dict
+    :param using: Template engine used to render the final template
     :rtype : str
     """
     soup = BeautifulSoup(html, features=HTML_PARSER)
@@ -155,9 +160,13 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             template_name = template_name[:-5]
 
         try:
-            include_template = validate_and_get_template(template_name)
+            include_template = validate_and_get_template(
+                name=template_name, using=using
+            )
         except ValidationError:
-            include_template = validate_and_get_template(default_template_name)
+            include_template = validate_and_get_template(
+                name=default_template_name, using=using
+            )
 
         include_html = include_template.render(template_context, request)
 
@@ -166,9 +175,6 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             tag.attrs[INCLUDE_TAG] = template_name
 
         replace_tag_content(tag=tag, content=include_html)
-
-    # soup does not recognize the changes made in above loop unless I do this
-    # Also do not move it inside the loop. It will mess up the variable scoping
 
     for tag in soup.find_all(attrs={ATTR_TAG: attr_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
@@ -179,7 +185,11 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             key = _ns + NAMESPACE_DELIMITER + key if _ns else key
 
             if key in cms_context:
-                tag[attr_name] = cms_context[key]
+                tag[attr_name] = render_template_string(
+                    template_string=cms_context[key],
+                    context=template_context,
+                    request=request, using=using
+                )
 
     for tag in soup.find_all(attrs={CONTENT_TAG: content_re}):
         _ns = get_namespace(tag, parent_namespace=parent_namespace)
@@ -198,17 +208,23 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             content = cms_context.get(key, '')
         else:
             content = tag.encode_contents()
-            if not any(_ in content for _ in CMS_ATTRIBUTES):
+            if not any(attr in content for attr in CMS_ATTRIBUTES):
                 continue
 
-        if any(_ in content for _ in CMS_ATTRIBUTES):
+        if any(attr in content for attr in CMS_ATTRIBUTES):
             content = parse_cms_template(
                 html=content, cms_context=cms_context, parent_namespace=key,
-                request=request, template_context=template_context
+                request=request, template_context=template_context, using=using
             )
 
         if md:
-            content = markdown(content, False)
+            content = markdown(content, escape=False)
+
+        content = render_template_string(
+            template_string=content,
+            context=template_context,
+            request=request, using=using
+        )
 
         if public and REPLACE_TAG in tag.attrs:
             new_tag = BeautifulSoup(content, features=HTML_PARSER)
@@ -224,7 +240,7 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
 def replace_tag_content(tag, content):
     tag.clear()
 
-    if isinstance(content, basestring):
+    if isinstance(content, six.string_types):
         # Don't even bother
         if not content:
             return tag
@@ -260,9 +276,21 @@ def is_namespace_parent(tag):
     return False
 
 
+def render_template_string(template_string, context=None,
+                           request=None, using=None):
+    if django_tag_re.findall(template_string):
+        return Template(
+            template_string=template_string, engine=using
+        ).render(context=make_context(context=context, request=request))
+
+    return template_string
+
+
 def can_edit_content(user):
-    return any(user.has_perm(perm)
-               for perm in ('cfblog.change_content', 'cfblog.can_publish'))
+    return any(
+        user.has_perm(perm)
+        for perm in ('cfblog.change_content', 'cfblog.can_publish')
+    )
 
 
 def can_publish_content(user):

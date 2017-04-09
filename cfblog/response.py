@@ -106,7 +106,7 @@ def render_to_response(template_name,
                     content = parse_cms_template(
                         html=content, cms_context=cms_context,
                         public=public, request=_request,
-                        template_context=template_context
+                        template_context=template_context, using=using
                     )
                 except (ValidationError, TemplateSyntaxError) as e:
                     if settings.DEBUG:

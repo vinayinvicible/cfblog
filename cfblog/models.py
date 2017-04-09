@@ -121,5 +121,5 @@ class Content(models.Model):
         content = template.render(context=template_context, request=request)
         return parse_cms_template(
             html=content, cms_context=self.public_data, public=True,
-            request=request, template_context=template_context
+            request=request, template_context=template_context, using=using
         )

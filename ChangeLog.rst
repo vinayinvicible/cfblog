@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.12 - 09-Apr-2017
+--------------------
+* enabled django templating support for cms context.
+
 0.2.11 - 17-Mar-2017
 --------------------
 * removed hidden attribute from editor tags. this fixes recent amp release making editors invisible.
