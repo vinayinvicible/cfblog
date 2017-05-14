@@ -14,7 +14,7 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.2.12",
+    version="0.2.13",
     author='Vinay Karanam, Ashish Nayan',
     author_email="vinayinvicible@gmail.com, nayanashish@gmail.com",
 
@@ -24,6 +24,17 @@ setup(
     install_requires=requirements,
     packages=find_packages(),
     include_package_data=True,
+
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 2.7',
+    ],
 
     zip_safe=True,
 )

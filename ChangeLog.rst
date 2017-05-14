@@ -1,5 +1,10 @@
 cfblog ChangeLog
 ================
+0.2.13 - 14-May-2017
+--------------------
+* support for django 1.11.
+* packaging improvements.
+
 0.2.12 - 09-Apr-2017
 --------------------
 * enabled django templating support for cms context.

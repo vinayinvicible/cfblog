@@ -2,8 +2,13 @@
 from django.conf import settings
 from django.http.response import Http404
 
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except Exception as e:
+    MiddlewareMixin = object
 
-class Middleware(object):
+
+class Middleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # ignore all ajax, static and media requests
