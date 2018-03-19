@@ -1,4 +1,8 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 from django.conf import settings as django_settings
 
 from . import global_settings
@@ -12,6 +16,7 @@ class CustomSettings(object):
             if item.isupper() and hasattr(global_settings, item):
                 return getattr(global_settings, item)
             raise
+
 
 settings = CustomSettings()
 

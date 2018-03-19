@@ -1,10 +1,15 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 import json
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http.response import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.views.decorators.csrf import csrf_protect
 
@@ -34,9 +39,10 @@ def render(request, template_name=_template_not_defined,
     """
     if request is not None:
         try:
-            cms_page = Content.objects.get(url=request.path_info)
-        except Content.DoesNotExist:
-            pass
+            cms_page = get_object_or_404(Content, url=request.path_info)
+        except Http404:
+            if template_name is _template_not_defined:
+                raise
         else:
             try:
                 return render_content(

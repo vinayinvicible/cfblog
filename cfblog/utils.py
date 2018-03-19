@@ -1,19 +1,24 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 import re
 from functools import wraps
 
-from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.template import TemplateSyntaxError, Template
+from django.template import Template, TemplateSyntaxError
 from django.template.base import tag_re as django_tag_re
 from django.template.context import make_context
 from django.test.client import Client
 from django.utils import six
 from django.utils.decorators import available_attrs
 from django.utils.functional import SimpleLazyObject
+
+from bs4 import BeautifulSoup
 from mistune import markdown
 
 from .validators import ValidationError, validate_and_get_template
@@ -70,6 +75,7 @@ def dum_request():
     finally:
         return request
 
+
 ATTR_TAG = 'data-cms-attr'
 INCLUDE_TAG = 'data-cms-include'
 CONTENT_TAG = 'data-cms-content'
@@ -107,7 +113,7 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
     Refer to tests for cms syntax
 
     :param html: Html to be parsed using cms syntax
-    :type html: str
+    :type html: str|unicode
     :param cms_context: Dictionary that is to be used to parse the
     cms attributes in template
     :type cms_context: dict
@@ -207,7 +213,7 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             # So, it doesn't make much sense to process it in else loop
             content = cms_context.get(key, '')
         else:
-            content = tag.encode_contents()
+            content = tag.decode_contents()
             if not any(attr in content for attr in CMS_ATTRIBUTES):
                 continue
 
@@ -234,7 +240,7 @@ def parse_cms_template(html, cms_context, parent_namespace='', public=False,
             replace_tag_content(tag=tag, content=content)
 
     # don't use soup.prettify as it will insert empty spaces inside textarea
-    return soup.encode_contents()
+    return soup.decode_contents()
 
 
 def replace_tag_content(tag, content):

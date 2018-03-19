@@ -1,10 +1,13 @@
 # coding=utf-8
-from django.db import models
-from django.db.models.query import QuerySet
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
+from django.db.models import Manager, QuerySet
 from django.utils import timezone
 
 
-class ContentMixin(object):
+class ContentQuerySet(QuerySet):
     def by_author(self, user):
         return self.filter(author=user)
 
@@ -23,10 +26,4 @@ class ContentMixin(object):
         return self.filter(category__is_static=False)
 
 
-class ContentQuerySet(QuerySet, ContentMixin):
-    pass
-
-
-class ContentManager(models.Manager, ContentMixin):
-    def get_queryset(self):
-        return ContentQuerySet(self.model, using=self._db)
+ContentManager = Manager.from_queryset(ContentQuerySet)

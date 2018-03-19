@@ -94,9 +94,9 @@ var default_opts = {
         autoSave: 100
     },
     theme: {
-        base: 'themes/base/epiceditor.css',
-        preview: 'themes/preview/bartik.css',
-        editor: 'themes/editor/epic-dark.css'
+        base: 'https://cdnjs.cloudflare.com/ajax/libs/epiceditor/0.2.2/themes/base/epiceditor.css',
+        preview: 'https://cdnjs.cloudflare.com/ajax/libs/epiceditor/0.2.2/themes/preview/bartik.css',
+        editor: 'https://cdnjs.cloudflare.com/ajax/libs/epiceditor/0.2.2/themes/editor/epic-dark.css'
     },
     button: {
         preview: true,

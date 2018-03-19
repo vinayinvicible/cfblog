@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
+# coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
 
 from fabric.api import local
+
+
+def clean():
+    local(
+        'rm -rf '
+        'build '
+        'dist '
+        '*.egg '
+        'cfblog/__pycache__ '
+        'cfblog/*.pyc '
+        'exmaple/__pycache__ '
+        'example/*.pyc'
+    )
 
 
 def docs():
@@ -11,13 +26,7 @@ def docs():
 
 
 def release():
-    "Update version id in setup.py, changelog and docs/source/conf.py."
-
-    local(
-        "python setup.py bdist_egg bdist_wheel sdist "
-        "--formats=bztar,gztar,zip upload"
-    )
-
-    # TODO: consider https://pypi.python.org/pypi/twine/ for secure uploads.
-
-# TODO: consider https://pypi.python.org/pypi/bumpversion/
+    clean()
+    local("python setup.py clean")
+    local("python setup.py sdist bdist_wheel")
+    local("twine upload dist/*")

@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 from setuptools import find_packages, setup
 
 try:
@@ -14,7 +18,7 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.2.13",
+    version="0.2.14",
     author='Vinay Karanam, Ashish Nayan',
     author_email="vinayinvicible@gmail.com, nayanashish@gmail.com",
 
@@ -34,6 +38,8 @@ setup(
         'Framework :: Django :: 1.11',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     zip_safe=True,

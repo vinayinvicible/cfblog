@@ -1,4 +1,8 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 import json
 import traceback
 
@@ -6,6 +10,7 @@ from django.core.cache import cache
 from django.http.response import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
+from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
@@ -79,7 +84,7 @@ def _save(request, save_type):
                 {'success': False,
                  'message': 'Unable to parse the new content.\n'
                  'Please check the console for issues.',
-                 'exception': unicode(e),
+                 'message_in_detail': force_text(e),
                  'traceback': traceback.format_exc()}
             )
         else:

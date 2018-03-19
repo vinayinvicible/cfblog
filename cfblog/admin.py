@@ -1,15 +1,19 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 from django.contrib import admin
 
 from .models import Category, Content
 
 
+@admin.register(Category)
 class CmsPageCategoryAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Category, CmsPageCategoryAdmin)
 
-
+@admin.register(Content)
 class ContentAdmin(admin.ModelAdmin):
     list_display = ('url', 'title', 'publish', 'status', 'link')
     list_filter = ('publish', 'category', 'status', 'author')
@@ -21,5 +25,3 @@ class ContentAdmin(admin.ModelAdmin):
             obj.get_absolute_url()
         )
     link.allow_tags = True
-
-admin.site.register(Content, ContentAdmin)

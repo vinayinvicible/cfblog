@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <style>
 .cms_tooltip {
     visibility: hidden;
@@ -102,6 +103,6 @@
     var static_url = '{{ STATIC_URL }}' + 'cfblog/';
     var modified_on = {{ modified_on|safe }};
 </script>
-<script src="{{ STATIC_URL }}cfblog/js/jquery-1.7.1.min.js"></script>
-<script src="{{ STATIC_URL }}cfblog/js/epiceditor.min.js"></script>
-<script src="{{ STATIC_URL }}cfblog/js/edit.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/epiceditor/0.2.2/js/epiceditor.min.js"></script>
+<script src={% static "cfblog/js/edit.min.js" %}></script>

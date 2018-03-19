@@ -1,5 +1,12 @@
 cfblog ChangeLog
 ================
+0.2.14 - 20-Mar-2018
+--------------------
+* support for python3.5 and python3.6.
+* using static tag instead of static url building.
+* Using CDN url instead of assets packaging.
+* packaging improvements.
+
 0.2.13 - 14-May-2017
 --------------------
 * support for django 1.11.

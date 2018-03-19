@@ -1,13 +1,16 @@
 # coding=utf-8
-from __future__ import unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
 
 import re
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.template.loader import (TemplateDoesNotExist, get_template,
-                                    select_template)
+from django.template.loader import (
+    TemplateDoesNotExist, get_template, select_template,
+)
 from django.utils.lru_cache import lru_cache
 from django.utils.translation import ugettext_lazy as _
 

@@ -1,4 +1,8 @@
 # coding=utf-8
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
+
 import datetime
 import json
 
@@ -362,9 +366,12 @@ class CMSTests(BaseTests):
 
 class TemplateEngineSyntaxTests(BaseTests):
 
-    @method_decorator(override_settings(STATIC_URL='/static/'))
+    @method_decorator(override_settings(
+        STATIC_URL='/static/',
+        STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage'
+    ))
     def test_data_cms_content(self):
-        self.cms_context = {"h1": "{% load static %}{% static 'lol.jpg'%}"}
+        self.cms_context = {"h1": "{% load staticfiles %}{% static 'lol.jpg'%}"}
         self.assertHTMLEqual(
             """
             <html>
@@ -400,6 +407,12 @@ class TemplateEngineSyntaxTests(BaseTests):
 
 
 class RegressionTests(TestCase):
+
+    @staticmethod
+    def get_json(response):
+        if hasattr(response, 'json'):
+            return response.json()
+        return json.loads(response.content.decode())
 
     @classmethod
     def setUpTestData(cls):
@@ -508,7 +521,7 @@ class RegressionTests(TestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
         self.assertEqual(response1.status_code, 200)
-        self.assertTrue(json.loads(response1.content)['success'])
+        self.assertTrue(self.get_json(response1)['success'])
 
         draft_time = self.cms_page.modified_on - datetime.timedelta(minutes=5)
         data['draft_modified'] = draft_time.isoformat()
@@ -518,5 +531,5 @@ class RegressionTests(TestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
         self.assertEqual(response2.status_code, 200)
-        self.assertFalse(json.loads(response2.content)['success'])
-        self.assertTrue(json.loads(response2.content)['draft_error'])
+        self.assertFalse(self.get_json(response2)['success'])
+        self.assertTrue(self.get_json(response2)['draft_error'])

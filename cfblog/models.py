@@ -1,5 +1,7 @@
 # coding=utf-8
-from __future__ import unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals,
+)
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -7,6 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 from jsonfield import JSONField
 from tagging.fields import TagField
 
