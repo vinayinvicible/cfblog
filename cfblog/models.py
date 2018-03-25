@@ -5,9 +5,11 @@ from __future__ import (
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from jsonfield import JSONField
@@ -15,22 +17,66 @@ from tagging.fields import TagField
 
 from .managers import ContentManager
 from .utils import dum_request, parse_cms_template
-from .validators import validate_and_get_template, validate_url_path
+from .validators import (
+    validate_and_get_template, validate_category_url_path,
+    validate_content_url_path,
+)
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
     """Category model."""
     title = models.CharField(_('title'), max_length=100,
                              unique=True, db_index=True)
     description = models.TextField(_('description'))
+    url = models.CharField(_('url path'), max_length=255, db_index=True,
+                           null=True, blank=True, unique=True,
+                           validators=[validate_category_url_path])
     is_static = models.BooleanField(default=False, db_index=True)
 
     class Meta(object):
         verbose_name_plural = _('categories')
         ordering = ('title',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
+
+    def clean(self):
+        super(Category, self).clean()
+        if not self.is_static:
+            if not self.url:
+                raise ValidationError('Non static pages must define a url')
+
+    def parents(self):
+        if self.url:
+            url_parts = self.url.strip('/').split('/')
+            parent_urls = []
+            for i in range(1, len(url_parts)):
+                parent_urls.append('/{}/'.format('/'.join(url_parts[:i])))
+            if parent_urls:
+                return self._meta.model.objects.filter(url__in=parent_urls)
+        return self._meta.model.objects.none()
+
+    def siblings(self, include_self=False):
+        if self.url:
+            url_parts = self.url.strip('/').split('/')
+            if url_parts:
+                if len(url_parts) == 1:
+                    sibling_url_re = r'^/[-a-zA-Z0-9_]+/$'
+                else:
+                    sibling_url_re = r'^/{}/[-a-zA-Z0-9_]+/$'.format(
+                        '/'.join(url_parts[:-1])
+                    )
+                qs = self._meta.model.objects.filter(url__regex=sibling_url_re)
+                return qs if include_self else qs.exclude(pk=self.pk)
+        return self._meta.model.objects.none()
+
+    def children(self):
+        if self.url:
+            return self._meta.model.objects.filter(
+                models.Q(url__startswith=self.url) & ~models.Q(pk=self.pk)
+            )
+        return self._meta.model.objects.none()
 
 
 def cms_authors():
@@ -46,6 +92,7 @@ def cms_authors():
     return {'pk__in': users.values('pk')}
 
 
+@python_2_unicode_compatible
 class Content(models.Model):
     DRAFT = 1
     PUBLIC = 2
@@ -54,7 +101,7 @@ class Content(models.Model):
         (PUBLIC, _('Public')),
     )
     url = models.CharField(_('url path'), max_length=255, db_index=True,
-                           unique=True, validators=[validate_url_path])
+                           unique=True, validators=[validate_content_url_path])
     template = models.CharField(verbose_name=_('template'), max_length=255,
                                 validators=[validate_and_get_template])
     status = models.IntegerField(
@@ -88,6 +135,9 @@ class Content(models.Model):
         get_latest_by = 'publish'
         permissions = (('can_publish', "Can Publish Posts"),)
 
+    def __str__(self):
+        return self.title
+
     @property
     def is_public(self):
         return self.status == self.PUBLIC
@@ -96,9 +146,6 @@ class Content(models.Model):
         self.public_data = self.auth_data
         self.status = self.PUBLIC
         self.save()
-
-    def __unicode__(self):
-        return self.title
 
     def get_previous_post(self):
         return self.get_previous_by_publish(

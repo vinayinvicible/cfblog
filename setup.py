@@ -18,7 +18,7 @@ setup(
     description="Awesome CMS for Django",
     long_description=long_description,
 
-    version="0.2.14",
+    version="0.2.15",
     author='Vinay Karanam, Ashish Nayan',
     author_email="vinayinvicible@gmail.com, nayanashish@gmail.com",
 

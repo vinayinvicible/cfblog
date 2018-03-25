@@ -27,9 +27,16 @@ def validate_and_get_template(name, using=None):
         raise ValidationError(_("Unable to find the template '{}'".format(e)))
 
 
-url_path_re = re.compile(r'^/(?:[-a-zA-Z0-9_]+/{})*$'.format(r'?' if not settings.APPEND_SLASH else r''))
-validate_url_path = RegexValidator(
-    url_path_re,
+content_url_path_re = re.compile(r'^/(?:[-a-zA-Z0-9_]+/{})*$'.format(r'?' if not settings.APPEND_SLASH else r''))
+validate_content_url_path = RegexValidator(
+    content_url_path_re,
+    _("Enter a valid 'url path'. Path should start and end with '/'."),
+    'invalid'
+)
+
+category_url_path_re = re.compile(r'^/(?:[-a-zA-Z0-9_]+/)+$')
+validate_category_url_path = RegexValidator(
+    category_url_path_re,
     _("Enter a valid 'url path'. Path should start and end with '/'."),
     'invalid'
 )

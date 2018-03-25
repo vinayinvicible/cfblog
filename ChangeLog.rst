@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.15 - 25-Mar-2018
+--------------------
+* Added url field for category model
+
 0.2.14 - 20-Mar-2018
 --------------------
 * support for python3.5 and python3.6.

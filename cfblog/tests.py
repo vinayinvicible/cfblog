@@ -12,7 +12,7 @@ from django.test import SimpleTestCase, TestCase
 from django.test.utils import override_settings
 from django.utils.decorators import method_decorator
 
-from .models import Content
+from .models import Content, Category
 from .utils import NAMESPACE_DELIMITER, parse_cms_template
 
 
@@ -403,6 +403,76 @@ class TemplateEngineSyntaxTests(BaseTests):
             </html>
             """,
             self.output
+        )
+
+
+class CategoryTests(TestCase):
+
+    def setUp(self):
+        Category.objects.create(title='First', url='/top1/')
+        Category.objects.create(title='Second', url='/top2/')
+        Category.objects.create(title='First Static', url='/top1/static/', is_static=True)
+        Category.objects.create(title='First child1', url='/top1/mid1/')
+        Category.objects.create(title='First child2', url='/top1/mid2/')
+        Category.objects.create(title='Second grand child', url='/top2/mid/bot/')
+
+    def test_parents(self):
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/').parents(), []
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/mid1/').parents(), ['<Category: First>']
+        )
+        self.assertEqual(
+            list(Category.objects.get(url='/top1/mid1/').parents()),
+            list(Category.objects.get(url='/top1/static/').parents()),
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/mid/bot/').parents(), ['<Category: Second>']
+        )
+
+    def test_siblings(self):
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/').siblings(), ['<Category: Second>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/').siblings(include_self=True),
+            ['<Category: First>', '<Category: Second>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/').siblings(), ['<Category: First>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/').siblings(include_self=True),
+            ['<Category: First>', '<Category: Second>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/mid1/').siblings(),
+            ['<Category: First Static>', '<Category: First child2>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/mid1/').siblings(include_self=True),
+            ['<Category: First Static>', '<Category: First child1>', '<Category: First child2>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/mid/bot/').siblings(), []
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/mid/bot/').siblings(include_self=True),
+            ['<Category: Second grand child>']
+        )
+
+    def test_children(self):
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/').children(),
+            ['<Category: First Static>', '<Category: First child1>', '<Category: First child2>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top2/').children(),
+            ['<Category: Second grand child>']
+        )
+        self.assertQuerysetEqual(
+            Category.objects.get(url='/top1/mid1/').children(), []
         )
 
 
