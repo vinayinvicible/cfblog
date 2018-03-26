@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='url',
-            field=models.CharField(db_index=True, max_length=255, null=True, blank=True, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^/(?:[-a-zA-Z0-9_]+/)+$', 32), "Enter a valid 'url path'. Path should start and end with '/'.", 'invalid')], verbose_name='url path'),
+            field=models.CharField(db_index=True, max_length=255, null=True, blank=True, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^/(?:[-a-zA-Z0-9_]+/)+$'), "Enter a valid 'url path'. Path should start and end with '/'.", 'invalid')], verbose_name='url path'),
         ),
     ]
