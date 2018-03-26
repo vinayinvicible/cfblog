@@ -1,5 +1,9 @@
 cfblog ChangeLog
 ================
+0.2.16 - 26-Mar-2018
+--------------------
+* Fixes makemigrations generating new migration in python2
+
 0.2.15 - 25-Mar-2018
 --------------------
 * Added url field for category model
